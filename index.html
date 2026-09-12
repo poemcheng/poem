@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#06111f" />
+  <title>CYUT IEM Smart Guide｜朝陽科大工管系智慧導覽</title>
+  <meta name="description" content="朝陽科技大學工業工程與管理系智慧導覽：OpenStreetMap 校園 3D 建物、理工大樓 1F/5F/6F、實驗室與設備資訊。" />
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="topbar">
+      <button class="brand" id="brandHome" aria-label="回到校園地圖">
+        <span class="brand-mark"><span>IE</span></span>
+        <span class="brand-copy">
+          <strong>CYUT IEM Smart Guide</strong>
+          <small>朝陽科技大學｜工業工程與管理系</small>
+        </span>
+      </button>
+      <nav class="topnav" aria-label="主要導覽">
+        <button id="campusNav" class="nav-btn active">校園 3D</button>
+        <button id="buildingNav" class="nav-btn">理工大樓</button>
+        <a class="nav-btn ghost" href="https://iem.cyut.edu.tw/" target="_blank" rel="noreferrer">系網 ↗</a>
+      </nav>
+    </header>
+
+    <main class="main">
+      <section id="campusView" class="view campus-view active" aria-label="CYUT 3D campus map">
+        <div id="map" class="map"></div>
+        <div id="mapFallback" class="map-fallback" hidden>
+          <div>
+            <strong>此瀏覽器目前無法啟用 WebGL 3D 地圖</strong>
+            <p>室內樓層、實驗室與設備導覽仍可正常使用。</p>
+            <button class="primary" data-action="enter-building">進入理工大樓</button>
+          </div>
+        </div>
+
+        <aside class="search-panel glass">
+          <div class="search-row">
+            <span class="search-icon">⌕</span>
+            <input id="searchInput" type="search" autocomplete="off" placeholder="搜尋 E-619、3D 掃描、人因、PLC…" aria-label="搜尋空間或設備" />
+            <button id="clearSearch" class="mini-icon" title="清除">×</button>
+          </div>
+          <div id="searchResults" class="search-results" hidden></div>
+          <div class="quick-row">
+            <button class="chip" data-quick="office">系辦 E-508</button>
+            <button class="chip" data-quick="labs">研究實驗室</button>
+            <button class="chip" data-quick="human">人因 E-619</button>
+          </div>
+        </aside>
+
+        <div class="map-status glass" id="mapStatus">
+          <span class="status-dot loading"></span>
+          <span id="mapStatusText">正在同步 OpenStreetMap 建物 footprint…</span>
+        </div>
+
+        <div class="map-tools glass">
+          <button id="resetMap" title="重設視角">↻</button>
+          <button id="togglePitch" title="切換俯視／3D">3D</button>
+        </div>
+
+        <aside id="buildingCard" class="building-card glass">
+          <div class="eyebrow">CYUT · SCIENCE & ENGINEERING BUILDING</div>
+          <h1>理工大樓</h1>
+          <p>Science and Engineering Building</p>
+          <div class="metric-grid">
+            <div><span>OSM</span><strong>way 292141618</strong></div>
+            <div><span>樓層</span><strong>7F</strong></div>
+            <div><span>IEM</span><strong>1F · 5F · 6F</strong></div>
+          </div>
+          <div class="card-actions">
+            <button class="primary" data-action="enter-building">進入理工大樓</button>
+            <a class="secondary" href="https://www.openstreetmap.org/way/292141618" target="_blank" rel="noreferrer">OSM ↗</a>
+          </div>
+        </aside>
+
+        <div class="map-hint">拖曳旋轉／移動 · 滾輪縮放 · 點擊建物 · 理工大樓可進入樓層</div>
+      </section>
+
+      <section id="buildingView" class="view building-view" aria-label="理工大樓樓層導覽">
+        <div class="building-hero">
+          <div class="hero-grid"></div>
+          <div class="hero-copy">
+            <div class="breadcrumb" id="breadcrumb">
+              <button data-action="campus">校園</button><span>/</span><strong>理工大樓</strong>
+            </div>
+            <div class="eyebrow">INDUSTRIAL ENGINEERING & MANAGEMENT</div>
+            <h1>理工大樓智慧樓層導覽</h1>
+            <p>從 OSM 3D 校園定位一路進入 1F、5F、6F，再深入實驗室與設備資訊。</p>
+          </div>
+          <div class="building-stack" id="buildingStack" aria-label="樓層選擇"></div>
+        </div>
+
+        <div class="interior-shell">
+          <aside class="floor-sidebar glass">
+            <div class="sidebar-head">
+              <span>SCIENCE & ENGINEERING</span>
+              <strong>樓層</strong>
+            </div>
+            <div id="floorButtons" class="floor-buttons"></div>
+            <div class="sidebar-source">
+              <span class="status-dot online"></span>
+              <div><strong>官方配置重畫</strong><small>5F / 6F floor plan</small></div>
+            </div>
+          </aside>
+
+          <section class="floor-stage">
+            <div class="floor-head">
+              <div>
+                <div id="floorEyebrow" class="eyebrow">5F · IEM</div>
+                <h2 id="floorTitle">工管系辦公室與專題空間</h2>
+                <p id="floorSubtitle"></p>
+              </div>
+              <div class="floor-actions">
+                <button id="backCampus" class="secondary">← 3D 校園</button>
+              </div>
+            </div>
+            <div class="plan-wrap">
+              <div id="floorPlan" class="floor-plan"></div>
+              <div class="plan-legend">
+                <span><i class="swatch lab"></i>實驗室</span>
+                <span><i class="swatch office"></i>辦公</span>
+                <span><i class="swatch seminar"></i>研討</span>
+                <span><i class="swatch meeting"></i>會議</span>
+              </div>
+            </div>
+          </section>
+
+          <aside id="detailDrawer" class="detail-drawer glass">
+            <div id="detailEmpty" class="detail-empty">
+              <div class="detail-symbol">⌁</div>
+              <strong>點選空間</strong>
+              <p>選取房間後，這裡會顯示功能、設備、研究主題與資料來源。</p>
+            </div>
+            <div id="detailContent" hidden></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-attribution">
+      Map data © OpenStreetMap contributors · Department data: CYUT IEM · 3D rendered with MapLibre GL JS
+    </footer>
+  </div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script src="data/iem-data.js"></script>
+  <script src="data/fallback-osm.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
