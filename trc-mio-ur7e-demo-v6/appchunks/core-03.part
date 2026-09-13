@@ -1,0 +1,64 @@
+23])boxMesh(.045,.71,.045,MAT.steel,sx,.355,sz,g);
+ g.position.set(x,0,z);g.rotation.y=rot;scene.add(g);return g
+}
+for(const x of [23.98,25.20,26.42])createTable(x,.465);
+createTable(27.535,1.53,Math.PI/2);
+
+// baskets, exact 0.62×0.43×0.24 m
+function createBasket(id,x,z){
+ const g=new THREE.Group();const w=.62,d=.43,h=.24;boxMesh(w,.035,d,MAT.teal,0,.018,0,g);
+ for(const sx of [-w/2,w/2])for(const sz of [-d/2,d/2])boxMesh(.026,h,.026,MAT.teal,sx,h/2,sz,g);
+ for(let yy=.065;yy<h;yy+=.065){boxMesh(.025,.022,d,MAT.teal,-w/2,yy,0,g);boxMesh(.025,.022,d,MAT.teal,w/2,yy,0,g);boxMesh(w,.022,.025,MAT.teal,0,yy,-d/2,g);boxMesh(w,.022,.025,MAT.teal,0,yy,d/2,g)}
+ qrPlane(`Basket-${id}`,.095,g,0,.12,-d/2-.006,0);g.position.set(x,.74,z);g.userData.id=id;scene.add(g);return g
+}
+const baskets=[23.65,24.26,24.87,25.48,26.09,26.70].map((x,i)=>createBasket(i+1,x,.465));
+
+// Source material bin 1.225×.610×.205 m with four class partitions and QR class labels
+const sourceBin=new THREE.Group();boxMesh(1.225,.075,.610,MAT.dark,0,.038,0,sourceBin);
+for(let i=-2;i<=2;i++)boxMesh(.025,.20,.610,MAT.dark,i*(1.225/4),.10,0,sourceBin);
+sourceBin.position.set(27.535,.79,1.53);scene.add(sourceBin);
+['D','E','F','G'].forEach((c,i)=>qrPlane(c,.09,sourceBin,-.45+i*.30,.15,-.31-.006,0));
+
+const PRODUCT_POS={"D":[[27.345,2.0645,0.748],[27.535,2.0645,0.748],[27.725,2.0645,0.748],[27.345,1.9875,0.748]],"E":[[27.345,1.7595,0.748],[27.535,1.7595,0.748],[27.725,1.7595,0.748],[27.345,1.6825,0.748],[27.535,1.6825,0.748],[27.725,1.6825,0.748],[27.345,1.6055,0.748],[27.535,1.6055,0.748],[27.725,1.6055,0.748],[27.345,1.7595,0.878],[27.535,1.7595,0.878]],"F":[[27.345,1.4545,0.748],[27.535,1.4545,0.748],[27.725,1.4545,0.748],[27.345,1.3775,0.748],[27.535,1.3775,0.748],[27.725,1.3775,0.748],[27.345,1.3005,0.748]],"G":[[27.405,1.1495,0.748],[27.665,1.1495,0.748],[27.405,1.0725,0.748]]};
+const PROD_SPEC={
+ D:{size:[.19,.10,.09],color:0xe8f1ef},E:{size:[.18,.24,.065],color:0xd9a72c},F:{size:[.15,.075,.065],color:0xe28ab3},G:{size:[.20,.055,.055],color:0x2364a9}
+};
+function createProduct(cat,pos){
+ const s=PROD_SPEC[cat],g=new THREE.Group(),m=new THREE.MeshStandardMaterial({color:s.color,roughness:.62,metalness:.05});
+ boxMesh(s.size[0],s.size[1],s.size[2],m,0,s.size[1]/2,0,g);g.position.set(pos[0],.755,pos[1]);g.rotation.y=(Math.sin(pos[0]*12+pos[1]*5)*.55);g.userData.taken=false;g.userData.cat=cat;scene.add(g);return g
+}
+const sourceItems={D:[],E:[],F:[],G:[]};for(const cat of ['D','E','F','G'])PRODUCT_POS[cat].forEach(p=>sourceItems[cat].push(createProduct(cat,p)));
+
+// Robot A — realistic automatic-forklift proxy built to manual role, not a toy block.
+function createAGF(){
+ const g=new THREE.Group();boxMesh(.82,.32,1.20,new THREE.MeshStandardMaterial({color:0x202a2d,roughness:.42,metalness:.62}),0,.23,0,g);
+ boxMesh(.74,.38,.70,new THREE.MeshStandardMaterial({color:0xd07721,roughness:.48,metalness:.35}),0,.53,-.10,g);
+ for(const sx of [-.34,.34])for(const sz of [-.39,.39]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,.09,18),MAT.black);w.rotation.z=Math.PI/2;w.position.set(sx,.14,sz);g.add(w)}
+ // mast and forks at +Z (forward)
+ for(const sx of [-.27,.27])boxMesh(.09,1.35,.09,MAT.dark,sx,.93,.50,g);
+ boxMesh(.64,.09,.09,MAT.dark,0,1.53,.50,g);
+ for(const sx of [-.19,.19])boxMesh(.09,.065,.90,MAT.steel,sx,.13,1.00,g);
+ boxMesh(.30,.16,.08,new THREE.MeshStandardMaterial({color:0x54b95e,emissive:0x1c6c2b,emissiveIntensity:.5}),0,.30,-.62,g);
+ return g
+}
+const robotA=createAGF();scene.add(robotA);robotA.position.set(13.10,0,-.93);
+
+// Robot B — MIO GLB + UR7e official URDF description from prior verified asset.
+const robotB=new THREE.Group();scene.add(robotB);robotB.position.set(21.90,0,1.53);
+const baseHost=new THREE.Group();robotB.add(baseHost);
+try{const mb=await loader.loadAsync(window.TRCDemoAssets.MIO_GLB_URI);mb.scene.scale.setScalar(.72);mb.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});baseHost.add(mb.scene)}catch(e){log('MIO GLB 載入失敗：'+e.message,'err')}
+const armMount=new THREE.Group();armMount.position.set(0,.69,0);robotB.add(armMount);let urdfRobot=null,tool0=null;
+try{if(window.TRCDemoAssets?.UR7E_URDF){const u=new URDFLoader();urdfRobot=u.parse(window.TRCDemoAssets.UR7E_URDF);urdfRobot.rotation.x=-Math.PI/2;urdfRobot.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});armMount.add(urdfRobot);tool0=urdfRobot.links?.tool0||null;log('UR7e 官方 URDF 已載入','ok')}}catch(e){log('UR7e URDF 載入錯誤：'+e.message,'err')}
+const rosJoint=['shoulder_pan_joint','shoulder_lift_joint','elbow_joint','wrist_1_joint','wrist_2_joint','wrist_3_joint'];
+const JOINT_POSE={home:[-90,-65,110,-135,-90,0],scan:[-72,-72,100,-116,-90,12],pick:[-56,-92,118,-118,-90,30],carry:[-90,-58,96,-128,-90,0],basket:[-112,-78,112,-126,-90,-12]};
+
+function snapshot(o){return {o,parent:o.parent,pos:o.position.clone(),quat:o.quaternion.clone(),scale:o.scale.clone(),visible:o.visible}}
+const snapshots=[...baskets.map(snapshot),...Object.values(sourceItems).flat().filter(Boolean).map(snapshot),snapshot(pallet)];
+const initialA=robotA.position.clone(),initialARot=robotA.quaternion.clone(),initialB=robotB.position.clone(),initialBRot=robotB.quaternion.clone();
+
+function beacon(parent,y){const g=new THREE.Group();const m=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.09,16),new THREE.MeshStandardMaterial({color:0xffb31a,emissive:0xff7b00,emissiveIntensity:2.5}));m.position.y=y;g.add(m);parent.add(g);g.visible=false;return g}const beaconA=beacon(robotA,1.55),beaconB=beacon(robotB,1.66);
+
+// ---------- Mission & Safety Supervisor ----------
+const TIME_SCALE=.20; // physical dynamics and robot trajectories are accelerated equally for a short demo.
+let running=false,paused=false,estop=false,missionEpoch=0,timerHandle=null,cartTime=0;
+let aAtD=false,bSortDone=false,basketsAtD=0,handshakeDone=false,bClearedD=false,dOwner=null,s
