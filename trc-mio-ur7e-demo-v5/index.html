@@ -10,18 +10,19 @@
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/",
+    "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/",
     "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.13.1/src/URDFLoader.js"
   }
 }
 </script>
 </head>
 <body>
-<div id="loading"><div class="loader"></div><b>載入 TRC2026 實尺寸場景…</b><small>ZIP system_integration scene · official UR7e URDF · meters</small></div>
+<div id="loading"><div class="loader"></div><b>載入 TRC2026 實尺寸場景…</b><small>ZIP source dimensions · official UR7e URDF · meters</small></div>
 <header class="topbar glass">
   <div>
     <div class="eyebrow">TAIWAN ROBOTICS COMPETITION · LOGISTICS</div>
     <h1>TRC 2026 系統整合驗證｜Digital Twin</h1>
-    <p>Robot A 自動叉車 × Robot B 機器手臂 AMR + UR7e · ZIP 原始場景座標 / 公尺制 / A–E 實尺寸</p>
+    <p>Robot A 自動叉車 × Robot B 機器手臂 AMR + UR7e · ZIP 場地尺寸 / 組裝座標 / 公尺制 / A–E</p>
   </div>
   <div class="top-actions">
     <button id="viewOverview" class="btn">總覽</button>
@@ -35,7 +36,7 @@
     <div class="section-title"><span>COMPETITION</span><b id="phase">READY</b></div>
     <div class="time-row"><strong id="clock">20:00</strong><span>時間上限</span></div>
     <div class="progress"><i id="missionProgress"></i></div>
-    <div class="small">5 分鐘準備 → 雙機同步啟動 → A 配送 / B 分揀 → D 交握 → 出貨。場景直接依 TRC2026 壓縮檔 system_integration 資產重建。</div>
+    <div class="small">5 分鐘準備 → 雙機同步啟動 → A 配送 / B 分揀 → D 交握 → 出貨。場景依 TRC2026.zip 的 requirements 與 assembly positions 以實尺寸重建。</div>
   </section>
   <section>
     <div class="section-title"><span>ROBOT A · DELIVERY</span><b id="aState" class="pill idle">STANDBY</b></div>
@@ -111,7 +112,8 @@
 <div id="zoneHud" class="zone-hud"></div>
 <div id="toast" class="toast"></div>
 
-<script src="../trc-mio-ur7e-demo-v4/assets.js"></script>
-<script type="module" src="./app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script src="./assets.js"></script>
+<script type="module" src="./app-loader.js"></script>
 </body>
 </html>
