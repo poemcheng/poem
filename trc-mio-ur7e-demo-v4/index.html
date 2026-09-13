@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>TRC 智慧物流競賽數位孿生｜UR7e URDF + MIO GLB + Nav2 + MoveIt2</title>
+<link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+<div class="panel header"><div class="kicker">Competition Digital Twin / Smart Intralogistics</div><h1>TRC 智慧物流情境模擬｜MIO AMR + UR7e</h1><div class="sub">參賽機器 B：MIO AMR GLB + UR7e 官方 URDF 視覺模型｜真實 QR 編碼｜RGB-D｜Nav2 Costmap / A*｜MoveIt2 JointTrajectory</div></div>
+<div class="legend"><span><i class="sw red"></i>參賽機器 A 路徑</span><span><i class="sw blue"></i>參賽機器 B 路徑</span></div>
+<div class="panel ops">
+  <div class="sec"><h3>MISSION ORCHESTRATION</h3><div class="missionTitle">指定物料揀取 → 分籃 → 堆疊 → 出貨</div><div class="missionSub">A 將棧板送至 D；B 掃描 Basket QR、辨識 D/E/F/G 物料並依訂單分揀；B 將 6 個出貨籃堆疊至棧板後到 E 終點；A 將棧板送至任意出貨區後回 D 終點。</div></div>
+  <div class="sec"><h3>ASSET / STATE</h3><div class="statusRow"><span>Participant A · AGF</span><span id="stateA" class="tag">STANDBY</span></div><div class="statusRow"><span>Participant B · MIO + UR7e</span><span id="stateB" class="tag">STANDBY</span></div><div class="statusRow"><span>Safety PLC / E-Stop</span><span id="safetyState" class="tag ok">NORMAL</span></div><div class="statusRow"><span>Basket progress</span><span id="basketProg">0 / 6</span></div></div>
+  <div class="sec"><h3>今日抽籤物料（每類 2 抽 1）</h3><div id="materialGrid" class="materialGrid"></div><div class="tiny" style="margin-top:6px">物料格位置每回合隨機；前方 QR 只標示類別 D / E / F / G。</div></div>
+  <div class="sec"><h3>ORDER MANIFEST · 25 PCS</h3><table class="orderTable"><thead><tr><th>Basket</th><th>D</th><th>E</th><th>F</th><th>G</th><th>狀態</th></tr></thead><tbody id="orderBody"></tbody></table></div>
+</div>
+<div class="panel score"><div class="scoreTop"><div><div class="tiny">LIVE SCORE</div><div><span id="scoreNum" class="num">0</span><span class="of"> / 65</span></div></div><div id="scoreState" class="tag">READY</div></div><div class="meter"><i id="scoreMeter"></i></div><div class="criteria">
+<div class="crit"><span>物料區取出 25 件</span><strong id="c1">0 / 25</strong><div class="bar"><i id="b1"></i></div></div>
+<div class="crit"><span>正確數量放入 Basket 1–6</span><strong id="c2">0 / 25</strong><div class="bar"><i id="b2"></i></div></div>
+<div class="crit"><span>6 籃移至棧板（2 分/籃）</span><strong id="c3">0 / 12</strong><div class="bar"><i id="b3"></i></div></div>
+<div class="crit"><span>棧板移至任意出貨區</span><strong id="c4">0 / 3</strong><div class="bar"><i id="b4"></i></div></div>
+</div></div>
+<div class="panel telemetry"><div class="sec"><h3>B ROBOT TELEMETRY</h3>
+<div class="grid"><div class="kv"><small>Mode</small><b id="modeB">IDLE</b></div><div class="kv"><small>Zone</small><b id="zoneB">E END</b></div><div class="kv"><small>Speed</small><b id="speedB">0.00 m/s</b></div><div class="kv"><small>Battery</small><b id="batteryB">96%</b></div></div>
+<div class="sysgrid"><div class="syschip"><small>ROBOT MODEL</small><b id="modelState">loading GLB/URDF…</b></div><div class="syschip"><small>NAV2</small><b id="navState">Costmap ready</b></div><div class="syschip"><small>MOVEIT2</small><b id="moveitState">trajectory ready</b></div><div class="syschip"><small>ROS2 BRIDGE</small><b id="rosState">SIM / OFFLINE</b></div></div>
+<div class="vision"><div class="hud">RGB-D / QR PIPELINE<br><span id="visionLine">camera online · waiting target</span></div><div class="detect" id="visionDetect">—</div></div>
+<div class="camPair"><div class="camBox"><span>RGB · OPTICAL</span><canvas id="rgbView" width="140" height="78"></canvas></div><div class="camBox"><span>DEPTH · Z</span><canvas id="depthView" width="140" height="78"></canvas></div></div>
+<div class="jointread" id="jointRead">q=[0.00, -1.57, 1.57, -1.57, -1.57, 0.00]</div><div class="navPathInfo" id="navInfo">global_plan: idle · local_costmap: clear</div>
+<div class="bridge"><input id="rosUrl" value="ws://localhost:9090" aria-label="ROS bridge websocket"><button id="rosConnect">READ-ONLY CONNECT</button></div>
+<div class="assetline">UR7e: <strong>Universal Robots ROS2 Description</strong> visual meshes + official kinematics<br>MIO: <strong>GLB asset</strong> built to competition-B envelope; OEM CAD not supplied</div>
+<div id="log" class="log"></div></div></div>
+<div class="panel bottom"><div class="cmdrow"><input id="command" placeholder="輸入或語音：執行完整競賽流程 / 掃描 Basket-1 / 前往物料區 / 緊急停止"><button id="mic" class="btn">🎙 語音</button><button id="exec" class="btn primary">執行</button></div><div class="quick"><button class="btn primary" data-cmd="執行完整競賽流程">完整競賽流程</button><button class="btn" data-cmd="重新抽籤">重新抽籤</button><button class="btn" data-cmd="啟動A機送棧板到D區">A → D 棧板</button><button class="btn" data-cmd="啟動B機完成六個出貨籃">B 六籃任務</button><button class="btn" data-cmd="B前往E終點">B → E 終點</button><button class="btn" data-cmd="A完成出貨並回D終點">A 出貨</button><button class="btn warn" data-cmd="重置">重置</button></div></div>
+<button id="estop" class="estop">E‑STOP</button><div id="notice" class="notice"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/ColladaLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/urdf-loader@0.13.1/umd/URDFLoader.js"></script>
+<script src="./assets.js"></script>
+<script src="./app-loader.js"></script>
+</body>
+</html>
