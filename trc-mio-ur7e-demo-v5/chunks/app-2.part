@@ -1,5 +1,4 @@
--Math.PI/2;m.position.set(x,.006,z);scene.add(m);return m}
-for(const x of [2.37,4.57,6.77,8.97])markRect(x,-2.47,.05,4.84,0x151515,.85);
+,4.84,0x151515,.85);
 
 // A-zone: exact 600×300×300 mm stainless boxes, 36 boxes, using ZIP assembly positions.
 const Aboxes=[
@@ -48,4 +47,5 @@ function createRobotA(){const g=new THREE.Group();meshBox(1.05,.28,1.55,new THRE
 const robotA=createRobotA();
 
 // Robot B: source package uses 850×650 concept envelope. Load deployed GLB proxy, add official UR7e URDF.
-const robotB=new THREE.Group();robotB.position.set(21.9,0,1.53);scene.add(robotB);const baseHost=new THREE.Group();robotB.add(baseHost);
+const robotB=new THREE.Group();robotB.position.set(21.9,0,1.53);scene.add(robotB);const baseHost=new THREE.Group();robotB.add(baseHost);const armMount=new THREE.Group();armMount.position.set(0,.62,0);robotB.add(armMount);let urdfRobot=null,tool0=null;
+function fallbackB(){meshBox(.85,.36,.65,MAT.white,0,.3,0,baseHost);meshBox(.86,.09,.66,MAT.blue,0,.14,0,baseH
