@@ -1,0 +1,68 @@
+ay());
+   setupSceneObjects();installOfficialUR7e();frameScene();resetMission(true);ui.loading.classList.add('hide');log('TRC2026 ZIP system-integration 場景已載入；尺寸/節點沿用來源資產','ok');
+  },e=>{throw e});
+ }catch(e){ui.loading.innerHTML='<b>場景載入失敗</b><small>'+e.message+'</small>';console.error(e)}
+}
+loadReferenceScene();
+
+function setupSceneObjects(){
+ const aRoot=findExact('Robot_A | concept autonomous forklift')||findExact('Robot_A | PENDING hardware');
+ const base=findExact('Mobile base | concept envelope 850x650');const ur=findExact('UR7e | movable base datum');
+ const aPos=world(aRoot);robotA=groupAt([aRoot],aPos);robotA.name='RobotA_Group';
+ const bPos=world(base);robotB=groupAt([base,ur],bPos);robotB.name='RobotB_Group';
+ pallet=findExact('Integration_A_empty_pallet');
+ tool0=findExact('UR7e_tool0');joints=jointNames.map(findExact);
+ for(let i=1;i<=6;i++){
+   const b=findExact('E_basket_'+i);const qr=findPrefix('QR_Basket-'+i)[0];const bp=world(b);const g=groupAt([b,qr],bp);g.name='BasketGroup_'+i;baskets.push(b);basketGroups.push(g);
+ }
+ for(const c of ['D','E','F','G']){const sku=SKU[c];sources[c]=findPrefix('integration_source_'+sku+'_').filter(o=>/^integration_source_[A-Z]\d(?:_\d)?_\d+$/.test(o.name)||new RegExp('^integration_source_'+sku.replace('_','_')+'_\\d+$').test(o.name));}
+ // robustly keep only parents with direct expected names
+ sources.D=findPrefix('integration_source_D1_').filter(o=>/^integration_source_D1_\d+$/.test(o.name));
+ sources.E=findPrefix('integration_source_E1_').filter(o=>/^integration_source_E1_\d+$/.test(o.name));
+ sources.F=findPrefix('integration_source_F1_').filter(o=>/^integration_source_F1_\d+$/.test(o.name));
+ sources.G=findPrefix('integration_source_G1_').filter(o=>/^integration_source_G1_\d+$/.test(o.name));
+ dynamicCarts=[1,2,3].map(i=>findExact('C_dynamic_'+i)).filter(Boolean);
+ initial.robotA={p:robotA.position.clone(),q:robotA.quaternion.clone()};initial.robotB={p:robotB.position.clone(),q:robotB.quaternion.clone()};initial.pallet={p:pallet.position.clone(),q:pallet.quaternion.clone(),parent:pallet.parent};
+ basketGroups.forEach((g,i)=>initial['basket'+i]={p:g.position.clone(),q:g.quaternion.clone()});
+ Object.values(sources).flat().forEach(o=>{initial['src:'+o.name]={p:o.position.clone(),q:o.quaternion.clone(),parent:o.parent}});
+ beaconA=makeBeacon(robotA,1.65);beaconB=makeBeacon(robotB,1.55);setBeacon(beaconA,false);setBeacon(beaconB,false);
+ ui.obs.textContent=dynamicCarts.length+' moving @0.8 m/s';
+}
+
+function installOfficialUR7e(){
+ const host=findExact('UR7e | movable base datum');
+ if(!host)return;
+ // The source GLB retains the exact UR7e kinematic frames, but the web package removes
+ // the heavy duplicated meshes. Re-inject the official UR description already deployed in V4.
+ const xml=window.TRCDemoAssets&&window.TRCDemoAssets.UR7E_URDF;
+ if(!xml){decorateArmFallback(host);log('UR7e URDF resource unavailable; exact kinematic fallback shell enabled','warn');return}
+ try{
+  const uloader=new URDFLoader();
+  const robot=uloader.parse(xml);
+  robot.rotation.x=-Math.PI/2;
+  robot.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+  host.add(robot);urdfRobot=robot;tool0=robot.links&&robot.links.tool0?robot.links.tool0:tool0;
+  log('UR7e official URDF visual meshes / kinematics activated','ok');
+ }catch(e){decorateArmFallback(host);log('URDF parse fallback: '+e.message,'warn')}
+}
+function decorateArmFallback(host){
+ // Industrial low-poly safety fallback attached to the exact ZIP kinematic frames.
+ const white=new THREE.MeshStandardMaterial({color:0xe7ecee,metalness:.35,roughness:.32});
+ const blue=new THREE.MeshStandardMaterial({color:0x2874a8,metalness:.25,roughness:.3});
+ const makeJoint=(n,r=.075)=>{const j=findExact(n);if(!j)return;const q=new THREE.Mesh(new THREE.CylinderGeometry(r,r,.11,24),blue);q.rotation.x=Math.PI/2;j.add(q)};
+ jointNames.forEach((n,i)=>makeJoint(n,i<3?.08:.06));
+ const links=[['UR7e_upper_arm_joint',.425],['UR7e_forearm_joint',.3922]];
+ links.forEach(([n,L])=>{const j=findExact(n);if(!j)return;const m=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,L,20),white);m.rotation.z=Math.PI/2;m.position.x=-L/2;j.add(m)});
+}
+function frameScene(){const box=new THREE.Box3().setFromObject(gltfRoot),center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());controls.target.copy(center).add(new THREE.Vector3(0,-.4,0));const d=Math.max(size.x,size.z)*1.18;camera.position.set(center.x+d*.72,d*.58,center.z+d*.78);camera.lookAt(controls.target);controls.update()}
+function tweenCamera(pos,target,ms=900){const p0=camera.position.clone(),t0=controls.target.clone(),st=performance.now();function s(now){const u=clamp((now-st)/ms,0,1),e=u*u*(3-2*u);camera.position.lerpVectors(p0,pos,e);controls.target.lerpVectors(t0,target,e);if(u<1)requestAnimationFrame(s)}requestAnimationFrame(s)}
+$('viewOverview').onclick=()=>frameScene();$('viewTop').onclick=()=>tweenCamera(new THREE.Vector3(14,42,-3),new THREE.Vector3(14,0,-3));$('viewE').onclick=()=>tweenCamera(new THREE.Vector3(31,11,10),new THREE.Vector3(25,0,1));
+
+function setStep(id,state){document.querySelectorAll('.steps li').forEach(li=>{if(li.dataset.step===id){li.classList.remove('active','done');if(state)li.classList.add(state)}})}
+function clearSteps(){document.querySelectorAll('.steps li').forEach(li=>li.classList.remove('active','done'))}
+function orderState(i,state){const e=$('order-'+i);e.classList.remove('active','done');if(state)e.classList.add(state)}
+
+async function waitUnpaused(){while(paused||halted)await sleep(80)}
+function moveObject(obj,target,speed,label,speedEl){return new Promise(resolve=>{const start=obj.position.clone();const dist=start.distanceTo(target);const duration=Math.max(250,dist/Math.max(.15,speed)*420/demoSpeed);const t0=performance.now();let last=start.clone();if(label)log(label);function step(now){if(halted||paused){requestAnimationFrame(step);return}const u=clamp((now-t0)/duration,0,1),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;obj.position.lerpVectors(start,target,e);const dp=obj.position.distanceTo(last);if(speedEl)speedEl.textContent=(dp/(1/60)).toFixed(2)+' m/s';last.copy(obj.position);if(u<1)requestAnimationFrame(step);else{if(speedEl)speedEl.textContent='0.00 m/s';resolve()}}requestAnimationFrame(step)})}
+async function follow(obj,pts,speed,label,speedEl){if(label)log(label);for(const p of pts){await waitUnpaused();const from=obj.position.clone();const dx=p.x-from.x,dz=p.z-from.z;if(Math.hypot(dx,dz)>.02)obj.rotation.y=Math.atan2(dx,dz);await moveObject(obj,p,speed,null,speedEl)}}
+async function waitCartClear(cart,crossZ){while(true){await waitUnpaused();const z=world(cart).z;if(Math.abs(z-crossZ)>1.05)return;pill(ui.safety,'PROTECTIVE STOP','run');ui.mode.textContent='WAIT OBSTACLE';log(`C 區安全等待：動態障礙 ${cart.name} 距交叉點過近`,'warn');await sl
