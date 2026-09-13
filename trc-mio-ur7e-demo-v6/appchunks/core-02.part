@@ -78,6 +78,4 @@ strip(.07,4.4,22.35,-1.1,0x2bd2c0,.022);
 // E-zone industrial tables
 function createTable(x,z,rot=0){
  const g=new THREE.Group();boxMesh(1.22,.055,.61,new THREE.MeshStandardMaterial({color:0xc9c9c4,roughness:.55,metalness:.18}),0,.74,0,g);
- for(const sx of [-.52,.52])for(const sz of [-.23,.23])boxMesh(.045,.71,.045,MAT.steel,sx,.355,sz,g);
- g.position.set(x,0,z);g.rotation.y=rot;scene.add(g);return g
-}
+ for(const sx of [-.52,.52])for(const sz of [-.23,.
