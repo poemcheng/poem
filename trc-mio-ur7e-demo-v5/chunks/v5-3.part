@@ -1,0 +1,27 @@
+[9.27,3.32,0],[9.87,3.32,0],[10.47,3.32,0],[9.27,3.32,.3],[9.87,3.32,.3],[10.47,3.32,.3],
+[7.07,.15,0],[7.07,.15,.3],[7.07,2.47,0],[7.07,2.47,.3],[7.07,4.79,0],[7.07,4.79,.3],
+[4.87,.15,0],[4.87,.45,0],[4.87,.75,0],[4.87,1.05,0],[4.87,.15,.3],[4.87,.45,.3],[4.87,.75,.3],[4.87,1.05,.3],
+[4.87,3.89,0],[4.87,4.19,0],[4.87,4.49,0],[4.87,4.79,0],[4.87,3.89,.3],[4.87,4.19,.3],[4.87,4.49,.3],[4.87,4.79,.3],
+[2.67,2.47,0],[2.67,2.47,.3]
+];
+Aboxes.forEach(([x,y,z])=>meshBox(.6,.3,.3,MAT.steel,x,z+.15,-y));
+// Narrow lane signage (clearances 1.30 / 1.47 / 1.57 m).
+sign('130 cm',11.2,.55,-.68,0);sign('147 cm',11.2,.55,-2.47,0);sign('157 cm',11.2,.55,-4.23,0);
+
+// B-zone: three exact lane options. Ramp horizontal projection 1.5 + 2.5 + 1.5 m; clear width 1.64 m.
+function rampLane(centerZ,deg,color){const theta=THREE.MathUtils.degToRad(deg),run=1.5,deck=2.5,W=1.64,H=Math.tan(theta)*run;const mat=new THREE.MeshStandardMaterial({color,roughness:.72});const x0=4.27;const up=meshBox(Math.hypot(run,H),.10,W,mat,x0+run/2,H/2-.02,centerZ);up.rotation.z=theta;const mid=meshBox(deck,.10,W,mat,x0+run+deck/2,H-.02,centerZ);const dn=meshBox(Math.hypot(run,H),.10,W,mat,x0+run+deck+run/2,H/2-.02,centerZ);dn.rotation.z=-theta;for(const zz of [centerZ-W/2-.02,centerZ+W/2+.02])meshBox(5.5,.28,.04,MAT.wall,x0+2.75,.14,zz);sign(deg?`${deg}°`:'平面',6.95,H+.35,centerZ,0);return H}
+const h8=rampLane(-9.15,8,0x804019);const h4=rampLane(-7.31,4,0xb87948);rampLane(-5.55,0,0x707579);
+
+// C-zone: exact track x positions and 400×400×800 mm dynamic carts at 0.8 m/s.
+const dynamicCarts=[];[18.087,21.054,24.021].forEach((x,i)=>{markRect(x,-7.485,.05,4.35,0x101010,.85);const g=new THREE.Group();meshBox(.4,.72,.4,new THREE.MeshStandardMaterial({color:0xe3d894,roughness:.64}),0,.4,0,g);for(const sx of [-.15,.15])for(const sz of [-.15,.15]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.06,16),MAT.rubber);w.rotation.z=Math.PI/2;w.position.set(sx,.06,sz);g.add(w)};g.position.set(x,0,-5.25-i*.8);scene.add(g);dynamicCarts.push(g)});
+
+// Industrial utilities to remove “toy” appearance: steel columns, luminaires, safety bollards.
+for(let x=-.2;x<28.5;x+=4.7){const col=meshBox(.14,4.4,.14,MAT.steel,x,2.2,3.35);const light=new THREE.PointLight(0xe8f5ff,.4,8);light.position.set(x,4.0,-3.2);scene.add(light)}
+for(let x=0.8;x<28;x+=2.5){const lamp=new THREE.Mesh(new THREE.BoxGeometry(1.1,.04,.16),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xdaf4ff,emissiveIntensity:2}));lamp.position.set(x,4.2,-2.2);scene.add(lamp)}
+
+function createPallet(){const g=new THREE.Group();for(const z of [-.42,0,.42])meshBox(1.1,.08,.22,MAT.pallet,0,.08,z,g);for(const x of [-.4,0,.4])meshBox(.18,.09,1.1,MAT.pallet,x,.17,0,g);return g}
+const pallet=createPallet();pallet.position.set(13.24,.01,-3.33);scene.add(pallet);
+
+function qrTexture(text){const c=document.createElement('canvas');c.width=c.height=256;const fallback=()=>{const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,256,256);x.fillStyle='#111';for(let yy=0;yy<21;yy++)for(let xx=0;xx<21;xx++)if(((xx*13+yy*7+text.length)%5)<2)x.fillRect(xx*12,yy*12,10,10)};try{if(window.QRCode)window.QRCode.toCanvas(c,text,{margin:1,width:256,errorCorrectionLevel:'M'}).catch(fallback);else fallback()}catch(e){fallback()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+function qrPlane(text,w=.12){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,w),new THREE.MeshBasicMaterial({map:qrTexture(text),side:THREE.DoubleSide}));m.userData.qr=text;return m}
+function createBasket(id){const g=new THREE.Group(),W=.62,D=.43,H=.24;meshBox(W,.04,D,MAT.basket,0,.02,0,g);for(const yy of [.06,.12,.18,.24]){meshBox(W,.025,.025,MAT.basket,0,yy,-D/2,g);meshBox(W,.025,.025,MAT.basket,0,yy,D/2,g);meshBox(.025,.025,D,MAT.basket,-W/2,yy,0,g);meshBox(.025,.025,D,MAT.basket,W/2,yy,0,g)}for(const x of [-W/2,W/2])for(const z of [-D/2,D/2])meshBox(.025,H,.025,MAT.basket,x,H/2,z,g);const q=qrPlane(`Basket-${id}`,.12);q.position.set(0,.12,D/2+.001);g.add(q);g.userData={id,items:[]};return g}
