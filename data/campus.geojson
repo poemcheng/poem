@@ -15,12 +15,12 @@
     },
     {
       "type": "Feature",
-      "properties": {"code":"T","name":"教學大樓","name_en":"Teaching Building","levels":6,"height":21.6,"geometry_quality":"simplified-static"},
+      "properties": {"code":"T1","name":"教學大樓","name_en":"Teaching Building","levels":8,"height":28.8,"geometry_quality":"simplified-static"},
       "geometry": {"type":"Polygon","coordinates":[[[120.71356,24.06834],[120.71404,24.06828],[120.71412,24.06867],[120.71363,24.06874],[120.71356,24.06834]]]}
     },
     {
       "type": "Feature",
-      "properties": {"code":"M","name":"管理大樓","name_en":"Management Building","levels":7,"height":25.2,"geometry_quality":"simplified-static"},
+      "properties": {"code":"T2","name":"管理大樓","name_en":"Management Building","levels":10,"height":36.0,"geometry_quality":"simplified-static"},
       "geometry": {"type":"Polygon","coordinates":[[[120.71363,24.06933],[120.71419,24.06926],[120.71426,24.06963],[120.71369,24.06970],[120.71363,24.06933]]]}
     },
     {
@@ -30,12 +30,12 @@
     },
     {
       "type": "Feature",
-      "properties": {"code":"I","name":"資訊大樓","name_en":"Information Building","levels":6,"height":21.6,"geometry_quality":"simplified-static"},
+      "properties": {"code":"M","name":"資訊大樓","name_en":"Information Building","levels":5,"height":18.0,"geometry_quality":"simplified-static"},
       "geometry": {"type":"Polygon","coordinates":[[[120.71566,24.06811],[120.71610,24.06806],[120.71617,24.06843],[120.71572,24.06849],[120.71566,24.06811]]]}
     },
     {
       "type": "Feature",
-      "properties": {"code":"H","name":"人文與科技大樓","name_en":"Humanities and Technology Building","levels":5,"height":18.0,"geometry_quality":"simplified-static"},
+      "properties": {"code":"G","name":"人文與科技大樓","name_en":"Humanities and Technology Building","levels":10,"height":36.0,"geometry_quality":"simplified-static"},
       "geometry": {"type":"Polygon","coordinates":[[[120.71493,24.06974],[120.71555,24.06966],[120.71560,24.06996],[120.71498,24.07004],[120.71493,24.06974]]]}
     },
     {
@@ -50,7 +50,7 @@
     },
     {
       "type": "Feature",
-      "properties": {"code":"G","name":"體育館","name_en":"Gymnasium","levels":3,"height":12.0,"geometry_quality":"simplified-static"},
+      "properties": {"code":"ATH","name":"體育館","name_en":"Athletics Building","levels":3,"height":12.0,"geometry_quality":"simplified-static"},
       "geometry": {"type":"Polygon","coordinates":[[[120.71621,24.06972],[120.71678,24.06964],[120.71690,24.07007],[120.71633,24.07015],[120.71621,24.06972]]]}
     }
   ]
