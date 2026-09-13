@@ -1,0 +1,28 @@
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import URDFLoader from 'urdf-loader';
+
+const $=id=>document.getElementById(id);
+const ui={loading:$('loading'),phase:$('phase'),clock:$('clock'),missionProgress:$('missionProgress'),aState:$('aState'),bState:$('bState'),orders:$('orders'),handshake:$('handshake'),aReady:$('aReady'),bReady:$('bReady'),linkState:$('linkState'),score:$('score'),scoreDelivery:$('scoreDelivery'),scoreSorting:$('scoreSorting'),barDelivery:$('barDelivery'),barSorting:$('barSorting'),sA:$('sA'),sB:$('sB'),sC:$('sC'),sPick:$('sPick'),sBasket:$('sBasket'),sStack:$('sStack'),sShip:$('sShip'),penalty:$('penalty'),visionState:$('visionState'),visionText:$('visionText'),aSpeed:$('aSpeed'),bSpeed:$('bSpeed'),obs:$('obs'),mode:$('mode'),safety:$('safety'),log:$('log'),toast:$('toast'),zoneHud:$('zoneHud'),command:$('command')};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const m=(mm)=>mm/1000;
+const pos=(x,y,z=0)=>new THREE.Vector3(x,z,-y); // ZIP Blender XY ground / Z-up -> Three XZ ground / Y-up
+function pill(el,text,cls='idle'){el.textContent=text;el.className='pill '+cls}
+function log(msg,cls=''){const d=document.createElement('div');d.className=cls;d.textContent=new Date().toLocaleTimeString('zh-TW',{hour12:false})+'  '+msg;ui.log.prepend(d)}
+function toast(msg){ui.toast.textContent=msg;ui.toast.classList.add('show');setTimeout(()=>ui.toast.classList.remove('show'),1800)}
+
+// Manual p.22 example order. Physical basket QR remains Basket-1..6 only.
+const ORDERS=[{id:1,D:1,E:4,F:0,G:0},{id:2,D:2,E:1,F:2,G:0},{id:3,D:0,E:3,F:1,G:0},{id:4,D:0,E:0,F:2,G:1},{id:5,D:1,E:1,F:0,G:2},{id:6,D:0,E:2,F:2,G:0}];
+const SKU={D:'D1',E:'E1',F:'F1',G:'G1'};
+const SKU_NAME={D1:'華淨 3D 醫療口罩 50入／盒',E1:'家樂氏 COCO格格脆 170g／盒',F1:'美琪 香皂 85g × 6塊',G1:'DARLIE 好來 全亮白清新薄荷牙膏 140g × 2入'};
+ORDERS.forEach(o=>{const e=document.createElement('div');e.className='order';e.id='order-'+o.id;e.innerHTML=`<b>Basket-${o.id}</b><small>D${o.D} · E${o.E} · F${o.F} · G${o.G}</small>`;ui.orders.appendChild(e)});
+const score={A:0,B:0,C:0,pick:0,basket:0,stack:0,ship:0,penalty:0};
+function dScore(){return score.A+score.B+score.C} function sScore(){return score.pick+score.basket+score.stack+score.ship}
+function updateScore(){const d=dScore(),s=sScore(),t=Math.max(0,d+s+score.penalty);ui.score.textContent=t;ui.scoreDelivery.textContent=`${d} / 68`;ui.scoreSorting.textContent=`${s} / 65`;ui.barDelivery.style.width=d/68*100+'%';ui.barSorting.style.width=s/65*100+'%';ui.sA.textContent=`${score.A}/36`;ui.sB.textContent=`${score.B}/20`;ui.sC.textContent=`${score.C}/12`;ui.sPick.textContent=`${score.pick}/25`;ui.sBasket.textContent=`${score.basket}/25`;ui.sStack.textContent=`${score.stack}/12`;ui.sShip.textContent=`${score.ship}/3`;ui.penalty.textContent=score.penalty.toFixed(1);if(running)ui.missionProgress.style.width=Math.min(99,t/133*100)+'%'}
+function addScore(k,v,why){score[k]+=v;updateScore();if(why)log(`${why}  ${v>0?'+':''}${v}`,'ok')}
+
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x09131a);scene.fog=new THREE.Fog(0x09131a,42,85);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.05,150);camera.position.set(39,31,34);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.prepend(renderer.domElement);
