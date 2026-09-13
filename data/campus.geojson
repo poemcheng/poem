@@ -1,0 +1,57 @@
+{
+  "type": "FeatureCollection",
+  "name": "cyut-campus-offline-snapshot",
+  "metadata": {
+    "source": "OpenStreetMap / CYUT public campus information",
+    "generated_for": "CYUT IEM Digital Twin Guide",
+    "runtime_network_dependency": false,
+    "note": "Science and Engineering Building uses the verified OSM way 292141618 footprint. Other major campus blocks are simplified static navigation footprints and can be regenerated from OSM without changing the runtime app."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"code":"E","name":"理工大樓","name_en":"Science and Engineering Building","levels":7,"height":25.2,"osm_id":292141618,"geometry_quality":"verified-osm"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.7153034,24.0694461],[120.7154913,24.0693823],[120.7154607,24.0693072],[120.7155621,24.0692728],[120.7153960,24.0688650],[120.7152298,24.0689214],[120.7151789,24.0688994],[120.7151386,24.0688602],[120.7151225,24.0688112],[120.7151306,24.0687745],[120.7151018,24.0687849],[120.7147401,24.0689126],[120.7146929,24.0689286],[120.7147859,24.0691569],[120.7151370,24.0690377],[120.7153034,24.0694461]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"code":"T","name":"教學大樓","name_en":"Teaching Building","levels":6,"height":21.6,"geometry_quality":"simplified-static"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.71356,24.06834],[120.71404,24.06828],[120.71412,24.06867],[120.71363,24.06874],[120.71356,24.06834]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"code":"M","name":"管理大樓","name_en":"Management Building","levels":7,"height":25.2,"geometry_quality":"simplified-static"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.71363,24.06933],[120.71419,24.06926],[120.71426,24.06963],[120.71369,24.06970],[120.71363,24.06933]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"code":"D","name":"設計大樓","name_en":"Design Building","levels":7,"height":25.2,"geometry_quality":"simplified-static"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.71547,24.06932],[120.71602,24.06925],[120.71612,24.06967],[120.71556,24.06974],[120.71547,24.06932]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"code":"I","name":"資訊大樓","name_en":"Information Building","levels":6,"height":21.6,"geometry_quality":"simplified-static"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.71566,24.06811],[120.71610,24.06806],[120.71617,24.06843],[120.71572,24.06849],[120.71566,24.06811]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"code":"H","name":"人文與科技大樓","name_en":"Humanities and Technology Building","levels":5,"height":18.0,"geometry_quality":"simplified-static"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.71493,24.06974],[120.71555,24.06966],[120.71560,24.06996],[120.71498,24.07004],[120.71493,24.06974]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"code":"L","name":"波錠紀念圖書館","name_en":"Poding Memorial Library","levels":5,"height":18.0,"geometry_quality":"simplified-static"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.71424,24.06776],[120.71487,24.06768],[120.71495,24.06803],[120.71432,24.06812],[120.71424,24.06776]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"code":"A","name":"行政大樓","name_en":"Administration Building","levels":4,"height":14.4,"geometry_quality":"simplified-static"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.71324,24.06974],[120.71364,24.06969],[120.71371,24.06998],[120.71331,24.07003],[120.71324,24.06974]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"code":"G","name":"體育館","name_en":"Gymnasium","levels":3,"height":12.0,"geometry_quality":"simplified-static"},
+      "geometry": {"type":"Polygon","coordinates":[[[120.71621,24.06972],[120.71678,24.06964],[120.71690,24.07007],[120.71633,24.07015],[120.71621,24.06972]]]}
+    }
+  ]
+}
