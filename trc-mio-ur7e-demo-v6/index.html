@@ -10,9 +10,9 @@
 </script>
 </head>
 <body>
-<div id="loading"><div class="loader"></div><b>載入 TRC2026 Digital Twin V6…</b><small>ZIP source scene · collision-safe supervisor · deterministic task graph</small></div>
+<div id="loading"><div class="loader"></div><b>載入 TRC2026 Digital Twin V6…</b><small>TRC2026 source dimensions · collision-safe supervisor · deterministic task graph</small></div>
 <header class="topbar glass">
-  <div><div class="eyebrow">TAIWAN ROBOTICS COMPETITION · LOGISTICS</div><h1>TRC 2026 系統整合驗證｜Safety-supervised Digital Twin</h1><p>Robot A 自動叉車 × Robot B MIO AMR + UR7e｜來源場景 GLB｜語音/文字任務規劃｜D 區互斥鎖｜C 區安全時窗</p></div>
+  <div><div class="eyebrow">TAIWAN ROBOTICS COMPETITION · LOGISTICS</div><h1>TRC 2026 系統整合驗證｜Safety-supervised Digital Twin</h1><p>Robot A 自動叉車 × Robot B MIO AMR + UR7e｜ZIP/手冊實尺寸重建｜語音/文字任務規劃｜D 區互斥鎖｜C 區安全時窗</p></div>
   <div class="top-actions"><button id="viewOverview" class="btn">總覽</button><button id="viewTop" class="btn">俯視</button><button id="viewD" class="btn">D 交握</button><button id="viewE" class="btn">E 分揀</button></div>
 </header>
 
@@ -32,17 +32,7 @@
 
 <div class="bottom glass"><div class="command-row"><input id="command" placeholder="輸入：開始完整流程 / 執行配送任務 / 執行分揀任務 / 暫停 / 繼續 / 重置"/><button id="mic" class="btn">🎙 語音</button><button id="exec" class="btn primary">解析並執行</button><button id="reset" class="btn">重置</button></div><div class="quick"><button class="chip" data-intent="FULL">完整流程</button><button class="chip" data-intent="DELIVERY">A 配送</button><button class="chip" data-intent="SORTING">B 分揀</button><button class="chip" data-intent="PAUSE">暫停</button><button class="chip" data-intent="RESUME">繼續</button><button class="chip" data-intent="VIEW_D">D 交握鏡頭</button><button class="chip" data-intent="VIEW_E">E 分揀鏡頭</button></div></div>
 <button id="estop" class="estop">E-STOP</button><div id="zoneHud" class="zone-hud"></div><div id="toast" class="toast"></div>
-<script src="./assets.js"></script>
-<script src="./binchunks/env-01.js"></script>
-<script src="./binchunks/env-02.js"></script>
-<script src="./binchunks/env-03.js"></script>
-<script src="./binchunks/env-04.js"></script>
-<script src="./binchunks/env-05.js"></script>
-<script src="./binchunks/env-06.js"></script>
-<script src="./binchunks/env-07.js"></script>
-<script src="./binchunks/env-08.js"></script>
-<script src="./binchunks/env-09.js"></script>
-<script src="./binchunks/mio-01.js"></script>
-<script src="./binchunks/fork-01.js"></script>
-<script src="./binary-loader.js"></script><script type="module" src="./app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script src="../trc-mio-ur7e-demo-v5/assets.js"></script>
+<script type="module" src="./app-loader.js"></script>
 </body></html>
