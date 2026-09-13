@@ -44,4 +44,5 @@ const zoneD=floorBox(14.07,0,13.87,4.94,'D · 出貨準備 / 交握');
 const zoneE=floorBox(21.00,-3.00,6.94,2.94,'E · 智慧物流分揀');
 
 // 5 cm task/target markings (manual); stylized but dimensionally grounded.
-function markRect(x,z,w,d,color=0x111111,opacity=.6){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({color,transparent:true,opacity,side:THREE.DoubleSide}));m.rotation.x=
+function markRect(x,z,w,d,color=0x111111,opacity=.6){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({color,transparent:true,opacity,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.set(x,.006,z);scene.add(m);return m}
+for(const x of [2.37,4.57,6.77,8.97])markRect(x,-2.47,.05
