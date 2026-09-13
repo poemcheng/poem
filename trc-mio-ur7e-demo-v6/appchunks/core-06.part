@@ -1,0 +1,35 @@
+eaconB.visible=false;return}while(!aAtD){await waitRun(token);pill(ui.bState,'WAIT A@D','run');await sleep(70)}for(let i=0;i<baskets.length;i++)await transferBasketToD(baskets[i],i,token);await maybeHandshake(token);await follow(robotB,[new THREE.Vector3(22.0,0,.42),new THREE.Vector3(21.90,0,1.53)],.82,token,ui.bSpeed,'Robot B：交握後清空 D → E 終點');bClearedD=true;ui.bCleared.textContent='YES';pill(ui.bState,'FINISHED','ok');beaconB.visible=false;log('Robot B：D zone cleared，授權 Robot A 出貨','ok')}
+
+function startTimer(){stopTimer();let r=1200;timerHandle=setInterval(()=>{r--;ui.clock.textContent=`${String(Math.floor(r/60)).padStart(2,'0')}:${String(r%60).padStart(2,'0')}`;if(r<=0){stopTimer();estop=true;ui.phase.textContent='TIMEOUT';pill(ui.safety,'STOP','stop');log('20 分鐘時間到：任務停止','err')}},1000)}function stopTimer(){if(timerHandle)clearInterval(timerHandle);timerHandle=null}
+async function runFull(){if(running){toast('已有任務執行中');return}resetMission(false);running=true;const token=missionEpoch;ui.phase.textContent='PREP';ui.planText.textContent='PREP → parallel(A delivery, B sorting) → A@D → B transfer×6 → handshake → B clear D → A ship';log('5 分鐘準備狀態確認（demo 加速呈現）','ok');await sleep(300);if(token!==missionEpoch)return;ui.phase.textContent='RUNNING';startTimer();beaconA.visible=beaconB.visible=true;try{await Promise.all([runRobotA(token),runRobotB(token)]);ensureToken(token);ui.phase.textContent='COMPLETE';ui.missionProgress.style.width='100%';toast(`Demo 完成 · ${ui.score.textContent}/133`);log('安全監督式完整流程完成','ok')}catch(e){if(!(e instanceof Cancelled)){console.error(e);ui.phase.textContent='FAULT';log('任務錯誤：'+e.message,'err')}}finally{if(token===missionEpoch){running=false;stopTimer()}}}
+async function runDeliveryOnly(){if(running){toast('已有任務執行中');return}resetMission(false);running=true;const token=missionEpoch;ui.phase.textContent='DELIVERY DEMO';startTimer();try{await runRobotA(token,{stopAtD:true});ui.phase.textContent='DELIVERY DONE'}catch(e){if(!(e instanceof Cancelled))log(e.message,'err')}finally{if(token===missionEpoch){running=false;stopTimer()}}}
+async function runSortingOnly(){if(running){toast('已有任務執行中');return}resetMission(false);running=true;const token=missionEpoch;ui.phase.textContent='SORTING DEMO';startTimer();try{await runRobotB(token,{standalone:true});ui.phase.textContent='SORTING DONE'}catch(e){if(!(e instanceof Cancelled))log(e.message,'err')}finally{if(token===missionEpoch){running=false;stopTimer()}}}
+
+function resetScore(){Object.keys(score).forEach(k=>score[k]=0);updateScore();clearSteps();ORDERS.forEach(o=>orderState(o.id,''))}
+function restoreSnapshot(s){s.parent.add(s.o);s.o.position.copy(s.pos);s.o.quaternion.copy(s.quat);s.o.scale.copy(s.scale);s.o.visible=s.visible}
+function resetMission(increment=true){if(increment)missionEpoch++;running=false;paused=false;estop=false;stopTimer();ui.clock.textContent='20:00';ui.phase.textContent='READY';pill(ui.aState,'STANDBY');pill(ui.bState,'STANDBY');pill(ui.handshake,'WAIT');pill(ui.visionState,'IDLE');pill(ui.safety,'SAFE','ok');ui.mode.textContent='AUTONOMOUS';ui.aReady.textContent='NO';ui.bReady.textContent='0/6';ui.dToken.textContent='FREE';ui.bCleared.textContent='NO';aAtD=false;bSortDone=false;basketsAtD=0;handshakeDone=false;bClearedD=false;dOwner=null;srcIndex={D:0,E:0,F:0,G:0};robotA.position.copy(initialA);robotA.quaternion.copy(initialARot);robotB.position.copy(initialB);robotB.quaternion.copy(initialBRot);snapshots.forEach(restoreSnapshot);resetScore();ui.visionText.textContent='等待 QR / 物料辨識';ui.missionProgress.style.width='0%';ui.clearance.textContent='—';setSafety('SAFE','ok','No conflict · path reservation ready');beaconA.visible=beaconB.visible=false;ui.planText.textContent='等待命令';log('Digital Twin reset')}
+
+// ---------- Deterministic language command planner ----------
+const PLAN={
+ BLOCKED:{label:'安全條件拒絕',plan:'命令試圖跳過競賽狀態或直接進入共享區；Safety Supervisor 拒絕執行。'},
+ FULL:{label:'完整系統整合',plan:'雙機同步 → A配送 + B在E分揀 → A@D → B逐籃移載 → handshake → B清空D → A出貨'},
+ DELIVERY:{label:'Robot A 配送示範',plan:'取棧板 → 130cm → 8° → C1/C2/C3安全時窗 → D停靠'},
+ SORTING:{label:'Robot B 分揀示範',plan:'掃描訂單 → 25件分揀 → 6籃完成 → E終點'},
+ PAUSE:{label:'暫停',plan:'凍結機器動作；保留任務狀態'},RESUME:{label:'繼續',plan:'從目前節點繼續'},RESET:{label:'重置',plan:'取消目前任務 → 回到 READY'},ESTOP:{label:'緊急停止',plan:'立即停止驅動；計時持續'},RELEASE_ESTOP:{label:'解除急停',plan:'復歸安全狀態'},VIEW_D:{label:'D區鏡頭',plan:'切換到 D 交握區'},VIEW_E:{label:'E區鏡頭',plan:'切換到 E 分揀區'},VIEW_ALL:{label:'總覽鏡頭',plan:'切換全場總覽'}
+};
+function normalizeText(t){return (t||'').normalize('NFKC').toUpperCase().replace(/[，。！？,.!?\s]/g,'').replace(/欸機|A機器|機器A/g,'A機').replace(/B機器|機器B/g,'B機')}
+function parseIntent(text){const s=normalizeText(text);if(!s)return {intent:'UNKNOWN',confidence:0};
+ if(/解除(急停|緊急停止)|復歸/.test(s))return {intent:'RELEASE_ESTOP',confidence:.99};
+ if(/緊急停止|急停|ESTOP|停止所有/.test(s))return {intent:'ESTOP',confidence:.99};
+ if(/重置|重新開始|回到初始|RESET/.test(s))return {intent:'RESET',confidence:.98};
+ if(/暫停|停一下|^停止$|PAUSE/.test(s))return {intent:'PAUSE',confidence:.97};
+ if(/繼續|恢復|RESUME/.test(s))return {intent:'RESUME',confidence:.97};
+ if(/A機.*(直接|前往|去).*D區|B機.*(直接|前往|去).*D區|跳過.*(A區|B區|C區|E區)/.test(s))return {intent:'BLOCKED',confidence:.99};
+ if(/完整流程|完整競賽|系統整合|開始比賽|開始完整|執行完整|完整任務/.test(s))return {intent:'FULL',confidence:.98};
+ if(/配送任務|A機.*(配送|搬運)|只跑A|ROBOT A/.test(s))return {intent:'DELIVERY',confidence:.95};
+ if(/分揀任務|B機.*分揀|六籃|只跑B|ROBOT B/.test(s))return {intent:'SORTING',confidence:.95};
+ if(/D區.*鏡頭|鏡頭.*D區|交握鏡頭|看D區/.test(s))return {intent:'VIEW_D',confidence:.88};
+ if(/E區.*鏡頭|鏡頭.*E區|分揀鏡頭|看E區/.test(s))return {intent:'VIEW_E',confidence:.88};
+ if(/總覽|全場|俯瞰/.test(s))return {intent:'VIEW_ALL',confidence:.9};
+ return {intent:'UNKNOWN',confidence:.1};}
+function showIntent(text,result,source='TEXT'){ui.heard.textContent=text||'—';ui.intent.textContent=result.intent==='UNKNOWN'?'UNKNOWN':`${result.intent} · ${PLAN[result.intent].label}
