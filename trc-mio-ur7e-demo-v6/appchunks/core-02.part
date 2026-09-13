@@ -1,0 +1,83 @@
+,x+w/2,z,color)
+}
+function wallSeg(w,d,x,z,h=.42){return boxMesh(w,h,d,MAT.wall,x,h/2,z)}
+function labelTexture(lines,bg='#092331',fg='#e9f8ff',accent='#33d2c1') {
+ const c=document.createElement('canvas');c.width=512;c.height=160;const g=c.getContext('2d');g.fillStyle=bg;g.fillRect(0,0,c.width,c.height);g.fillStyle=accent;g.fillRect(0,0,10,c.height);g.font='700 42px system-ui';g.fillStyle=fg;g.fillText(lines[0],28,58);g.font='500 24px system-ui';g.fillStyle='#a9c7d5';g.fillText(lines[1]||'',28,105);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t
+}
+function sign3d(title,sub,x,y,z,ry=0,w=3.0,h=.94){
+ const mat=new THREE.MeshBasicMaterial({map:labelTexture([title,sub]),transparent:true,side:THREE.DoubleSide,depthWrite:false});
+ const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);p.position.set(x,y,z);p.rotation.y=ry;scene.add(p);return p
+}
+function qrCanvas(value){
+ const c=document.createElement('canvas');c.width=128;c.height=128;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,128,128);
+ if(window.QRCode?.toCanvas){try{window.QRCode.toCanvas(c,value,{width:128,margin:1,color:{dark:'#111820',light:'#ffffff'}})}catch{}}
+ else {g.fillStyle='#111';for(let y=8;y<120;y+=12)for(let x=8;x<120;x+=12)if(((x*y+value.length*17)>>3)%3===0)g.fillRect(x,y,8,8)}
+ return c
+}
+function qrPlane(value,w=.18,parent=scene,x=0,y=.15,z=0,ry=0){
+ const t=new THREE.CanvasTexture(qrCanvas(value));t.colorSpace=THREE.SRGBColorSpace;const p=new THREE.Mesh(new THREE.PlaneGeometry(w,w),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}));p.position.set(x,y,z);p.rotation.y=ry;parent.add(p);return p
+}
+
+// Continuous floor topology: no artificial closed walls between task zones.
+floorBox(14.04,4.94,7.02,-2.47);
+floorBox(14.04,4.97,7.02,-8.015,MAT.concrete2);
+floorBox(13.87,4.97,20.975,-8.015);
+floorBox(13.87,4.94,20.975,-2.47,MAT.concrete2);
+floorBox(6.94,2.94,24.44,1.47);
+// 5-cm task lines from manual
+borderRect(14.04,4.94,7.02,-2.47);borderRect(14.04,4.97,7.02,-8.015);borderRect(13.87,4.97,20.975,-8.015);borderRect(13.87,4.94,20.975,-2.47);borderRect(6.94,2.94,24.44,1.47);
+
+// Professional perimeter barriers, leaving all inter-zone transitions open.
+wallSeg(.16,10.5,.08,-5.25);wallSeg(27.9,.16,13.95,-10.42);wallSeg(.16,13.35,27.83,-3.75);wallSeg(6.9,.16,24.44,2.86);
+wallSeg(20.6,.16,10.3,-.08);wallSeg(.16,2.7,20.98,1.50);
+sign3d('A｜窄道與靜態避障','130 / 147 / 157 cm',7.0,2.15,-.12,0);
+sign3d('B｜斜坡負重','8° / 4° / FLAT',7.0,2.15,-10.30,Math.PI);
+sign3d('C｜動態避障','3 × 0.8 m/s moving carts',20.9,2.15,-10.30,Math.PI);
+sign3d('D｜交握與出貨','D-zone interlock',18.4,2.15,-.12,0);
+sign3d('E｜視覺分揀','QR · RGB-D · UR7e',24.4,2.15,2.80,Math.PI);
+
+// A-zone: exact static-box assembly coordinates from TRC2026.zip (1:20 positions scaled to meters)
+const STATIC_BOXES=[[9.27,-1.72,0.0],[9.87,-1.72,0.0],[10.47,-1.72,0.0],[9.27,-1.72,0.3],[9.87,-1.72,0.3],[10.47,-1.72,0.3],[9.27,-3.32,0.0],[9.87,-3.32,0.0],[10.47,-3.32,0.0],[9.27,-3.32,0.3],[9.87,-3.32,0.3],[10.47,-3.32,0.3],[7.07,-0.15,0.0],[7.07,-0.15,0.3],[7.07,-2.47,0.0],[7.07,-2.47,0.3],[7.07,-4.79,0.0],[7.07,-4.79,0.3],[4.87,-0.15,0.0],[4.87,-0.45,0.0],[4.87,-0.75,0.0],[4.87,-1.05,0.0],[4.87,-0.15,0.3],[4.87,-0.45,0.3],[4.87,-0.75,0.3],[4.87,-1.05,0.3],[4.87,-3.89,0.0],[4.87,-4.19,0.0],[4.87,-4.49,0.0],[4.87,-4.79,0.0],[4.87,-3.89,0.3],[4.87,-4.19,0.3],[4.87,-4.49,0.3],[4.87,-4.79,0.3],[2.67,-2.47,0.0],[2.67,-2.47,0.3]];
+const STATIC_A_RECTS=[];
+for(const [x,z,baseY] of STATIC_BOXES){
+ boxMesh(.60,.30,.30,MAT.steel,x,baseY+.15,z);
+ if(baseY<.01 && !STATIC_A_RECTS.some(r=>Math.abs(r.x-x)<1e-4&&Math.abs(r.z-z)<1e-4))STATIC_A_RECTS.push({x,z});
+}
+// pallet
+function createPallet(){
+ const g=new THREE.Group();for(const z of [-.42,0,.42])boxMesh(1.10,.09,.25,MAT.wood,0,.045,z,g);for(const x of [-.40,0,.40])boxMesh(.22,.08,1.10,MAT.wood,x,.13,0,g);return g
+}
+const pallet=createPallet();pallet.position.set(13.24,0,-3.33);scene.add(pallet);
+
+// B-zone: source-sized 8°/4°/flat lanes, 1.64 m clear width
+function rampLane(z,deg,mat){
+ const a=THREE.MathUtils.degToRad(deg),run=1.5,h=Math.tan(a)*run,L=Math.hypot(run,h),x0=4.2;
+ const up=boxMesh(L,.08,1.64,mat,x0+run/2,h/2,z);up.rotation.z=a;
+ boxMesh(2.5,.08,1.64,mat,x0+run+1.25,h+.04,z);
+ const dn=boxMesh(L,.08,1.64,mat,x0+run+2.5+run/2,h/2,z);dn.rotation.z=-a;
+ for(const zz of [z-.84,z+.84]){boxMesh(5.5,.18,.04,MAT.dark,x0+2.75,.18,zz)}
+}
+rampLane(-9.15,8,new THREE.MeshStandardMaterial({color:0x72380f,roughness:.73}));
+rampLane(-7.15,4,new THREE.MeshStandardMaterial({color:0xc89152,roughness:.76}));
+strip(5.5,1.64,6.95,-5.95,0x555b5e,.025);
+
+// C-zone tracks and 0.40×0.40×0.80 m dynamic carts
+const dynamicCarts=[];
+function createDynamicCart(x,z){
+ const g=new THREE.Group();boxMesh(.40,.70,.40,new THREE.MeshStandardMaterial({color:0xd9d59d,roughness:.58}),0,.42,0,g);
+ boxMesh(.34,.08,.34,MAT.dark,0,.78,0,g);for(const sx of [-.15,.15])for(const sz of [-.15,.15]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.035,12),MAT.black);w.rotation.z=Math.PI/2;w.position.set(sx,.055,sz);g.add(w)}
+ g.position.set(x,0,z);scene.add(g);return g
+}
+for(const [i,x,z] of [[1,18.087,-5.25],[2,21.054,-6.05],[3,24.021,-6.85]]){strip(.05,4.45,x,-7.48,0x111111,.018);dynamicCarts.push(createDynamicCart(x,z));sign3d(`C${i}`,`0.8 m/s safety crossing`,x,.95,-10.05,Math.PI,1.8,.52)}
+
+// D-zone docking/transfer/shipping markings — visual lane separation prevents robot overlap.
+borderRect(3.2,2.1,24.25,-3.25,0xe9c243);borderRect(2.5,2.0,22.35,-3.25,0x2bd2c0);
+borderRect(2.4,1.8,19.2,-1.15,0xe9c243);borderRect(2.4,1.8,22.0,-1.15,0xe9c243);
+strip(.07,4.4,22.35,-1.1,0x2bd2c0,.022);
+
+// E-zone industrial tables
+function createTable(x,z,rot=0){
+ const g=new THREE.Group();boxMesh(1.22,.055,.61,new THREE.MeshStandardMaterial({color:0xc9c9c4,roughness:.55,metalness:.18}),0,.74,0,g);
+ for(const sx of [-.52,.52])for(const sz of [-.23,.23])boxMesh(.045,.71,.045,MAT.steel,sx,.355,sz,g);
+ g.position.set(x,0,z);g.rotation.y=rot;scene.add(g);return g
+}
