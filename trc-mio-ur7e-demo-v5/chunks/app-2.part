@@ -1,68 +1,51 @@
-ay());
-   setupSceneObjects();installOfficialUR7e();frameScene();resetMission(true);ui.loading.classList.add('hide');log('TRC2026 ZIP system-integration 場景已載入；尺寸/節點沿用來源資產','ok');
-  },e=>{throw e});
- }catch(e){ui.loading.innerHTML='<b>場景載入失敗</b><small>'+e.message+'</small>';console.error(e)}
-}
-loadReferenceScene();
+-Math.PI/2;m.position.set(x,.006,z);scene.add(m);return m}
+for(const x of [2.37,4.57,6.77,8.97])markRect(x,-2.47,.05,4.84,0x151515,.85);
 
-function setupSceneObjects(){
- const aRoot=findExact('Robot_A | concept autonomous forklift')||findExact('Robot_A | PENDING hardware');
- const base=findExact('Mobile base | concept envelope 850x650');const ur=findExact('UR7e | movable base datum');
- const aPos=world(aRoot);robotA=groupAt([aRoot],aPos);robotA.name='RobotA_Group';
- const bPos=world(base);robotB=groupAt([base,ur],bPos);robotB.name='RobotB_Group';
- pallet=findExact('Integration_A_empty_pallet');
- tool0=findExact('UR7e_tool0');joints=jointNames.map(findExact);
- for(let i=1;i<=6;i++){
-   const b=findExact('E_basket_'+i);const qr=findPrefix('QR_Basket-'+i)[0];const bp=world(b);const g=groupAt([b,qr],bp);g.name='BasketGroup_'+i;baskets.push(b);basketGroups.push(g);
- }
- for(const c of ['D','E','F','G']){const sku=SKU[c];sources[c]=findPrefix('integration_source_'+sku+'_').filter(o=>/^integration_source_[A-Z]\d(?:_\d)?_\d+$/.test(o.name)||new RegExp('^integration_source_'+sku.replace('_','_')+'_\\d+$').test(o.name));}
- // robustly keep only parents with direct expected names
- sources.D=findPrefix('integration_source_D1_').filter(o=>/^integration_source_D1_\d+$/.test(o.name));
- sources.E=findPrefix('integration_source_E1_').filter(o=>/^integration_source_E1_\d+$/.test(o.name));
- sources.F=findPrefix('integration_source_F1_').filter(o=>/^integration_source_F1_\d+$/.test(o.name));
- sources.G=findPrefix('integration_source_G1_').filter(o=>/^integration_source_G1_\d+$/.test(o.name));
- dynamicCarts=[1,2,3].map(i=>findExact('C_dynamic_'+i)).filter(Boolean);
- initial.robotA={p:robotA.position.clone(),q:robotA.quaternion.clone()};initial.robotB={p:robotB.position.clone(),q:robotB.quaternion.clone()};initial.pallet={p:pallet.position.clone(),q:pallet.quaternion.clone(),parent:pallet.parent};
- basketGroups.forEach((g,i)=>initial['basket'+i]={p:g.position.clone(),q:g.quaternion.clone()});
- Object.values(sources).flat().forEach(o=>{initial['src:'+o.name]={p:o.position.clone(),q:o.quaternion.clone(),parent:o.parent}});
- beaconA=makeBeacon(robotA,1.65);beaconB=makeBeacon(robotB,1.55);setBeacon(beaconA,false);setBeacon(beaconB,false);
- ui.obs.textContent=dynamicCarts.length+' moving @0.8 m/s';
-}
+// A-zone: exact 600×300×300 mm stainless boxes, 36 boxes, using ZIP assembly positions.
+const Aboxes=[
+[9.27,1.72,0],[9.87,1.72,0],[10.47,1.72,0],[9.27,1.72,.3],[9.87,1.72,.3],[10.47,1.72,.3],
+[9.27,3.32,0],[9.87,3.32,0],[10.47,3.32,0],[9.27,3.32,.3],[9.87,3.32,.3],[10.47,3.32,.3],
+[7.07,.15,0],[7.07,.15,.3],[7.07,2.47,0],[7.07,2.47,.3],[7.07,4.79,0],[7.07,4.79,.3],
+[4.87,.15,0],[4.87,.45,0],[4.87,.75,0],[4.87,1.05,0],[4.87,.15,.3],[4.87,.45,.3],[4.87,.75,.3],[4.87,1.05,.3],
+[4.87,3.89,0],[4.87,4.19,0],[4.87,4.49,0],[4.87,4.79,0],[4.87,3.89,.3],[4.87,4.19,.3],[4.87,4.49,.3],[4.87,4.79,.3],
+[2.67,2.47,0],[2.67,2.47,.3]
+];
+Aboxes.forEach(([x,y,z])=>meshBox(.6,.3,.3,MAT.steel,x,z+.15,-y));
+// Narrow lane signage (clearances 1.30 / 1.47 / 1.57 m).
+sign('130 cm',11.2,.55,-.68,0);sign('147 cm',11.2,.55,-2.47,0);sign('157 cm',11.2,.55,-4.23,0);
 
-function installOfficialUR7e(){
- const host=findExact('UR7e | movable base datum');
- if(!host)return;
- // The source GLB retains the exact UR7e kinematic frames, but the web package removes
- // the heavy duplicated meshes. Re-inject the official UR description already deployed in V4.
- const xml=window.TRCDemoAssets&&window.TRCDemoAssets.UR7E_URDF;
- if(!xml){decorateArmFallback(host);log('UR7e URDF resource unavailable; exact kinematic fallback shell enabled','warn');return}
- try{
-  const uloader=new URDFLoader();
-  const robot=uloader.parse(xml);
-  robot.rotation.x=-Math.PI/2;
-  robot.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
-  host.add(robot);urdfRobot=robot;tool0=robot.links&&robot.links.tool0?robot.links.tool0:tool0;
-  log('UR7e official URDF visual meshes / kinematics activated','ok');
- }catch(e){decorateArmFallback(host);log('URDF parse fallback: '+e.message,'warn')}
-}
-function decorateArmFallback(host){
- // Industrial low-poly safety fallback attached to the exact ZIP kinematic frames.
- const white=new THREE.MeshStandardMaterial({color:0xe7ecee,metalness:.35,roughness:.32});
- const blue=new THREE.MeshStandardMaterial({color:0x2874a8,metalness:.25,roughness:.3});
- const makeJoint=(n,r=.075)=>{const j=findExact(n);if(!j)return;const q=new THREE.Mesh(new THREE.CylinderGeometry(r,r,.11,24),blue);q.rotation.x=Math.PI/2;j.add(q)};
- jointNames.forEach((n,i)=>makeJoint(n,i<3?.08:.06));
- const links=[['UR7e_upper_arm_joint',.425],['UR7e_forearm_joint',.3922]];
- links.forEach(([n,L])=>{const j=findExact(n);if(!j)return;const m=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,L,20),white);m.rotation.z=Math.PI/2;m.position.x=-L/2;j.add(m)});
-}
-function frameScene(){const box=new THREE.Box3().setFromObject(gltfRoot),center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());controls.target.copy(center).add(new THREE.Vector3(0,-.4,0));const d=Math.max(size.x,size.z)*1.18;camera.position.set(center.x+d*.72,d*.58,center.z+d*.78);camera.lookAt(controls.target);controls.update()}
-function tweenCamera(pos,target,ms=900){const p0=camera.position.clone(),t0=controls.target.clone(),st=performance.now();function s(now){const u=clamp((now-st)/ms,0,1),e=u*u*(3-2*u);camera.position.lerpVectors(p0,pos,e);controls.target.lerpVectors(t0,target,e);if(u<1)requestAnimationFrame(s)}requestAnimationFrame(s)}
-$('viewOverview').onclick=()=>frameScene();$('viewTop').onclick=()=>tweenCamera(new THREE.Vector3(14,42,-3),new THREE.Vector3(14,0,-3));$('viewE').onclick=()=>tweenCamera(new THREE.Vector3(31,11,10),new THREE.Vector3(25,0,1));
+// B-zone: three exact lane options. Ramp horizontal projection 1.5 + 2.5 + 1.5 m; clear width 1.64 m.
+function rampLane(centerZ,deg,color){const theta=THREE.MathUtils.degToRad(deg),run=1.5,deck=2.5,W=1.64,H=Math.tan(theta)*run;const mat=new THREE.MeshStandardMaterial({color,roughness:.72});const x0=4.27;const up=meshBox(Math.hypot(run,H),.10,W,mat,x0+run/2,H/2-.02,centerZ);up.rotation.z=theta;const mid=meshBox(deck,.10,W,mat,x0+run+deck/2,H-.02,centerZ);const dn=meshBox(Math.hypot(run,H),.10,W,mat,x0+run+deck+run/2,H/2-.02,centerZ);dn.rotation.z=-theta;for(const zz of [centerZ-W/2-.02,centerZ+W/2+.02])meshBox(5.5,.28,.04,MAT.wall,x0+2.75,.14,zz);sign(deg?`${deg}°`:'平面',6.95,H+.35,centerZ,0);return H}
+const h8=rampLane(-9.15,8,0x804019);const h4=rampLane(-7.31,4,0xb87948);rampLane(-5.55,0,0x707579);
 
-function setStep(id,state){document.querySelectorAll('.steps li').forEach(li=>{if(li.dataset.step===id){li.classList.remove('active','done');if(state)li.classList.add(state)}})}
-function clearSteps(){document.querySelectorAll('.steps li').forEach(li=>li.classList.remove('active','done'))}
-function orderState(i,state){const e=$('order-'+i);e.classList.remove('active','done');if(state)e.classList.add(state)}
+// C-zone: exact track x positions and 400×400×800 mm dynamic carts at 0.8 m/s.
+const dynamicCarts=[];[18.087,21.054,24.021].forEach((x,i)=>{markRect(x,-7.485,.05,4.35,0x101010,.85);const g=new THREE.Group();meshBox(.4,.72,.4,new THREE.MeshStandardMaterial({color:0xe3d894,roughness:.64}),0,.4,0,g);for(const sx of [-.15,.15])for(const sz of [-.15,.15]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.06,16),MAT.rubber);w.rotation.z=Math.PI/2;w.position.set(sx,.06,sz);g.add(w)};g.position.set(x,0,-5.25-i*.8);scene.add(g);dynamicCarts.push(g)});
 
-async function waitUnpaused(){while(paused||halted)await sleep(80)}
-function moveObject(obj,target,speed,label,speedEl){return new Promise(resolve=>{const start=obj.position.clone();const dist=start.distanceTo(target);const duration=Math.max(250,dist/Math.max(.15,speed)*420/demoSpeed);const t0=performance.now();let last=start.clone();if(label)log(label);function step(now){if(halted||paused){requestAnimationFrame(step);return}const u=clamp((now-t0)/duration,0,1),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;obj.position.lerpVectors(start,target,e);const dp=obj.position.distanceTo(last);if(speedEl)speedEl.textContent=(dp/(1/60)).toFixed(2)+' m/s';last.copy(obj.position);if(u<1)requestAnimationFrame(step);else{if(speedEl)speedEl.textContent='0.00 m/s';resolve()}}requestAnimationFrame(step)})}
-async function follow(obj,pts,speed,label,speedEl){if(label)log(label);for(const p of pts){await waitUnpaused();const from=obj.position.clone();const dx=p.x-from.x,dz=p.z-from.z;if(Math.hypot(dx,dz)>.02)obj.rotation.y=Math.atan2(dx,dz);await moveObject(obj,p,speed,null,speedEl)}}
-async function waitCartClear(cart,crossZ){while(true){await waitUnpaused();const z=world(cart).z;if(Math.abs(z-crossZ)>1.05)return;pill(ui.safety,'PROTECTIVE STOP','run');ui.mode.textContent='WAIT OBSTACLE';log(`C 區安全等待：動態障礙 ${cart.name} 距交叉點過近`,'warn');await sl
+// Industrial utilities to remove “toy” appearance: steel columns, luminaires, safety bollards.
+for(let x=-.2;x<28.5;x+=4.7){const col=meshBox(.14,4.4,.14,MAT.steel,x,2.2,3.35);const light=new THREE.PointLight(0xe8f5ff,.4,8);light.position.set(x,4.0,-3.2);scene.add(light)}
+for(let x=0.8;x<28;x+=2.5){const lamp=new THREE.Mesh(new THREE.BoxGeometry(1.1,.04,.16),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xdaf4ff,emissiveIntensity:2}));lamp.position.set(x,4.2,-2.2);scene.add(lamp)}
+
+function createPallet(){const g=new THREE.Group();for(const z of [-.42,0,.42])meshBox(1.1,.08,.22,MAT.pallet,0,.08,z,g);for(const x of [-.4,0,.4])meshBox(.18,.09,1.1,MAT.pallet,x,.17,0,g);return g}
+const pallet=createPallet();pallet.position.set(13.24,.01,-3.33);scene.add(pallet);
+
+function qrTexture(text){const c=document.createElement('canvas');c.width=c.height=256;const fallback=()=>{const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,256,256);x.fillStyle='#111';for(let yy=0;yy<21;yy++)for(let xx=0;xx<21;xx++)if(((xx*13+yy*7+text.length)%5)<2)x.fillRect(xx*12,yy*12,10,10)};try{if(window.QRCode)window.QRCode.toCanvas(c,text,{margin:1,width:256,errorCorrectionLevel:'M'}).catch(fallback);else fallback()}catch(e){fallback()}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
+function qrPlane(text,w=.12){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,w),new THREE.MeshBasicMaterial({map:qrTexture(text),side:THREE.DoubleSide}));m.userData.qr=text;return m}
+function createBasket(id){const g=new THREE.Group(),W=.62,D=.43,H=.24;meshBox(W,.04,D,MAT.basket,0,.02,0,g);for(const yy of [.06,.12,.18,.24]){meshBox(W,.025,.025,MAT.basket,0,yy,-D/2,g);meshBox(W,.025,.025,MAT.basket,0,yy,D/2,g);meshBox(.025,.025,D,MAT.basket,-W/2,yy,0,g);meshBox(.025,.025,D,MAT.basket,W/2,yy,0,g)}for(const x of [-W/2,W/2])for(const z of [-D/2,D/2])meshBox(.025,H,.025,MAT.basket,x,H/2,z,g);const q=qrPlane(`Basket-${id}`,.12);q.position.set(0,.12,D/2+.001);g.add(q);g.userData={id,items:[]};return g}
+const baskets=[];for(let i=0;i<6;i++){const b=createBasket(i+1);b.position.set(23.65+i*.61,.77,.465);scene.add(b);baskets.push(b)}
+
+function createTable(x,z,rot=0){const g=new THREE.Group();meshBox(1.22,.055,.61,MAT.white,0,.74,0,g);for(const sx of [-.53,.53])for(const sz of [-.23,.23])meshBox(.045,.71,.045,MAT.steel,sx,.355,sz,g);g.position.set(x,0,z);g.rotation.y=rot;scene.add(g);return g}
+[23.98,25.2,26.42].forEach(x=>createTable(x,.465));createTable(27.535,1.53,Math.PI/2);
+// Source bin exact 610×1225×205 mm, four cells, class-only QR front.
+const sourceBin=new THREE.Group();sourceBin.position.set(27.535,.77,1.53);sourceBin.rotation.y=Math.PI/2;scene.add(sourceBin);meshBox(.61,.205,1.225,MAT.dark,0,.102,0,sourceBin);for(const z of [-.459,-.153,.153,.459])meshBox(.57,.12,.285,new THREE.MeshStandardMaterial({color:0x31383b,roughness:.65}),0,.22,z,sourceBin);
+const sources={D:[],E:[],F:[],G:[]};const sourceCount={D:4,E:11,F:7,G:3};const catZ={D:-.459,E:-.153,F:.153,G:.459};const pkgColor={D:0xb6d9d0,E:0xf2c853,F:0x7cb358,G:0x4381bd};
+for(const cat of ['D','E','F','G']){const q=qrPlane(cat,.12);q.position.set(-.315,.12,catZ[cat]);q.rotation.y=-Math.PI/2;sourceBin.add(q);for(let i=0;i<sourceCount[cat];i++){const w=cat==='G'?.14:.18,d=cat==='G'?.07:.11,h=cat==='E'?.20:.15;const p=meshBox(w,h,d,new THREE.MeshStandardMaterial({color:pkgColor[cat],roughness:.55}),0,.32+(i>=9?.08:0),catZ[cat]+((i%3)-1)*.075,sourceBin);p.rotation.y=(i%4)*.18-0.22;p.userData={cat,sku:SKU[cat],taken:false};sources[cat].push(p)}}
+
+// Shipping zones in D: two cells, as manual D area concept.
+markRect(19.75,-1.1,1.8,1.6,0xc88d21,.28);markRect(22.45,-1.1,1.8,1.6,0xc88d21,.28);sign('出貨區 1',19.75,.5,-1.1);sign('出貨區 2',22.45,.5,-1.1);
+
+// Robot A: industrial AGF envelope, fork carriage and realistic mast.
+function createRobotA(){const g=new THREE.Group();meshBox(1.05,.28,1.55,new THREE.MeshStandardMaterial({color:0xcf7719,metalness:.35,roughness:.4}),0,.24,0,g);meshBox(.88,1.35,.68,MAT.dark,0,1.0,.30,g);for(const x of [-.42,.42]){meshBox(.09,2.2,.09,MAT.steel,x,1.35,-.62,g);meshBox(.09,.08,1.35,MAT.steel,x,.16,-1.05,g)}for(const x of [-.44,.44])for(const z of [-.48,.48]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.12,20),MAT.rubber);w.rotation.z=Math.PI/2;w.position.set(x,.16,z);g.add(w)}const lidar=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.12,28),MAT.dark);lidar.position.set(0,1.78,.1);g.add(lidar);g.position.set(13.15,0,-1.55);scene.add(g);return g}
+const robotA=createRobotA();
+
+// Robot B: source package uses 850×650 concept envelope. Load deployed GLB proxy, add official UR7e URDF.
+const robotB=new THREE.Group();robotB.position.set(21.9,0,1.53);scene.add(robotB);const baseHost=new THREE.Group();robotB.add(baseHost);
