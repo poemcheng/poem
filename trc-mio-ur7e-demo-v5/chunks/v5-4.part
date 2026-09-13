@@ -1,0 +1,21 @@
+const baskets=[];for(let i=0;i<6;i++){const b=createBasket(i+1);b.position.set(23.65+i*.61,.77,.465);scene.add(b);baskets.push(b)}
+
+function createTable(x,z,rot=0){const g=new THREE.Group();meshBox(1.22,.055,.61,MAT.white,0,.74,0,g);for(const sx of [-.53,.53])for(const sz of [-.23,.23])meshBox(.045,.71,.045,MAT.steel,sx,.355,sz,g);g.position.set(x,0,z);g.rotation.y=rot;scene.add(g);return g}
+[23.98,25.2,26.42].forEach(x=>createTable(x,.465));createTable(27.535,1.53,Math.PI/2);
+// Source bin exact 610×1225×205 mm, four cells, class-only QR front.
+const sourceBin=new THREE.Group();sourceBin.position.set(27.535,.77,1.53);sourceBin.rotation.y=Math.PI/2;scene.add(sourceBin);meshBox(.61,.205,1.225,MAT.dark,0,.102,0,sourceBin);for(const z of [-.459,-.153,.153,.459])meshBox(.57,.12,.285,new THREE.MeshStandardMaterial({color:0x31383b,roughness:.65}),0,.22,z,sourceBin);
+const sources={D:[],E:[],F:[],G:[]};const sourceCount={D:4,E:11,F:7,G:3};const catZ={D:-.459,E:-.153,F:.153,G:.459};const pkgColor={D:0xb6d9d0,E:0xf2c853,F:0x7cb358,G:0x4381bd};
+for(const cat of ['D','E','F','G']){const q=qrPlane(cat,.12);q.position.set(-.315,.12,catZ[cat]);q.rotation.y=-Math.PI/2;sourceBin.add(q);for(let i=0;i<sourceCount[cat];i++){const w=cat==='G'?.14:.18,d=cat==='G'?.07:.11,h=cat==='E'?.20:.15;const p=meshBox(w,h,d,new THREE.MeshStandardMaterial({color:pkgColor[cat],roughness:.55}),0,.32+(i>=9?.08:0),catZ[cat]+((i%3)-1)*.075,sourceBin);p.rotation.y=(i%4)*.18-0.22;p.userData={cat,sku:SKU[cat],taken:false};sources[cat].push(p)}}
+
+// Shipping zones in D: two cells, as manual D area concept.
+markRect(19.75,-1.1,1.8,1.6,0xc88d21,.28);markRect(22.45,-1.1,1.8,1.6,0xc88d21,.28);sign('出貨區 1',19.75,.5,-1.1);sign('出貨區 2',22.45,.5,-1.1);
+
+// Robot A: industrial AGF envelope, fork carriage and realistic mast.
+function createRobotA(){const g=new THREE.Group();meshBox(1.05,.28,1.55,new THREE.MeshStandardMaterial({color:0xcf7719,metalness:.35,roughness:.4}),0,.24,0,g);meshBox(.88,1.35,.68,MAT.dark,0,1.0,.30,g);for(const x of [-.42,.42]){meshBox(.09,2.2,.09,MAT.steel,x,1.35,-.62,g);meshBox(.09,.08,1.35,MAT.steel,x,.16,-1.05,g)}for(const x of [-.44,.44])for(const z of [-.48,.48]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.12,20),MAT.rubber);w.rotation.z=Math.PI/2;w.position.set(x,.16,z);g.add(w)}const lidar=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.12,28),MAT.dark);lidar.position.set(0,1.78,.1);g.add(lidar);g.position.set(13.10,0,-.93);scene.add(g);return g}
+const robotA=createRobotA();
+
+// Robot B: source package uses 850×650 concept envelope. Load deployed GLB proxy, add official UR7e URDF.
+const robotB=new THREE.Group();robotB.position.set(21.9,0,1.53);scene.add(robotB);const baseHost=new THREE.Group();robotB.add(baseHost);const armMount=new THREE.Group();armMount.position.set(0,.62,0);robotB.add(armMount);let urdfRobot=null,tool0=null;
+function fallbackB(){meshBox(.85,.36,.65,MAT.white,0,.3,0,baseHost);meshBox(.86,.09,.66,MAT.blue,0,.14,0,baseHost)}
+if(window.TRCDemoAssets?.MIO_GLB_URI){new GLTFLoader().load(window.TRCDemoAssets.MIO_GLB_URI,g=>{const q=g.scene;const bb=new THREE.Box3().setFromObject(q),sz=bb.getSize(new THREE.Vector3());q.scale.set(.85/Math.max(sz.x,.001),.85/Math.max(sz.x,.001),.85/Math.max(sz.x,.001));q.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});baseHost.add(q)},undefined,fallbackB)}else fallbackB();
+try{const xml=window.TRCDemoAssets?.UR7E_URDF;if(xml){const u=new URDFLoader();urdfRobot=u.parse(xml);urdfRobot.rotation.x=-Math.PI/2;urdfRobot.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});armMount.add(urdfRobot);tool0=urdfRobot.links?.tool0||null;log('UR7e 官方 kinematics / visual mesh 已載入','ok')}}catch(e){log('URDF loader fallback：'+e.message,'warn')}
