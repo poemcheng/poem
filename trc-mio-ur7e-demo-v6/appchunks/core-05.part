@@ -1,0 +1,36 @@
+core('A',4,'棧板完全移出存放區');setStep('a0','done');setStep('a1','active');await follow(robotA,A_SAFE,.78,token,ui.aSpeed,'A 區：A* 驗證之 130 cm 無碰撞路徑',clearAStatic);addScore('A',20,'130 cm 窄道完全通過');addScore('A',4,'A1 完全通過');addScore('A',4,'A2 完全通過');addScore('A',4,'A3 完全通過');setStep('a1','done');setStep('a2','active');await follow(robotA,[new THREE.Vector3(.88,0,-5.65),new THREE.Vector3(4.15,0,-9.15),new THREE.Vector3(5.77,.211,-9.15),new THREE.Vector3(8.27,.211,-9.15),new THREE.Vector3(9.82,0,-9.15),new THREE.Vector3(13.25,0,-9.05),new THREE.Vector3(15.15,0,-8.55)],.82,token,ui.aSpeed,'B 區：8° 負重坡道');addScore('B',10,'8° 上坡完成');addScore('B',10,'8° 下坡完成');setStep('a2','done');setStep('a3','active');for(let i=0;i<3;i++)await crossC(dynamicCarts[i],i+1,token);await follow(robotA,[new THREE.Vector3(26.95,0,-8.55),new THREE.Vector3(27.20,0,-5.40),new THREE.Vector3(26.55,0,-4.25),new THREE.Vector3(24.80,0,-3.25)],.88,token,ui.aSpeed,'C → D 開放通道');await rotateTo(robotA,Math.PI/2,token);setStep('a3','done');setStep('a4','active');aAtD=true;ui.aReady.textContent='YES';pill(ui.aState,'PARKED @ D','run');setSafety('SAFE','ok','Robot A 已停靠 D；驅動保持，等待 B 逐籃移載');log('Robot A：D safe dock locked','ok');if(stopAtD){beaconA.visible=false;return}while(!handshakeDone){await waitRun(token);await sleep(70)}while(!bClearedD){await waitRun(token);await sleep(70)}setStep('a4','done');setStep('a5','active');await acquireD('A_SHIP',token);await follow(robotA,[new THREE.Vector3(21.10,0,-3.25),new THREE.Vector3(19.20,0,-1.20)],.72,token,ui.aSpeed,'Robot A：B 已清空 D → 出貨區');addScore('ship',3,'出貨棧板完成出貨');await follow(robotA,[new THREE.Vector3(23.8,0,-1.20),new THREE.Vector3(26.75,0,-3.95)],.82,token,ui.aSpeed,'Robot A：D 終點');releaseD('A_SHIP');setStep('a5','done');pill(ui.aState,'FINISHED','ok');beaconA.visible=false}
+
+function localItemSlot(n){return new THREE.Vector3((n%3-1)*.12,.26+Math.floor(n/3)*.075,(n%2?-.055:.055))}
+async function pickOne(cat,basket,slot,token){
+ const item=sourceItems[cat][srcIndex[cat]++];if(!item)throw new Error(`source depleted ${cat}`);
+ await follow(robotB,[new THREE.Vector3(26.55,0,1.45)],.62,token,ui.bSpeed,`Robot B：物料區 ${cat} dock`);
+ pill(ui.visionState,'DETECTED','ok');ui.visionText.textContent=`QR=${cat} · ${SKU[cat]} · ${SKU_NAME[SKU[cat]]} · pose/confidence gate PASS`;
+ await armPose('scan',token,230);await armPose('pick',token,280);
+ scene.attach(item);await moveTo(item,new THREE.Vector3(robotB.position.x,.96,robotB.position.z-.15),1.15,token,null);
+ robotB.attach(item);item.position.set(.18,.96,-.12);
+ const dockX=clamp(basket.position.x,23.65,26.70);await follow(robotB,[new THREE.Vector3(dockX,0,1.22)],.58,token,ui.bSpeed,`Robot B：Basket-${basket.userData.id} precision dock`);
+ await armPose('basket',token,240);
+ scene.attach(item);basket.updateMatrixWorld(true);const local=localItemSlot(slot);const target=basket.localToWorld(local.clone());const above=target.clone();above.y+=.22;
+ await moveTo(item,above,.75,token,null);await moveTo(item,target,.38,token,null);
+ basket.attach(item);item.position.copy(local);item.rotation.set(0,.12*(slot%3),0);item.userData.taken=true;
+ addScore('pick',1,`${SKU[cat]} 取出`);addScore('basket',1,`${SKU[cat]} 放入 Basket-${basket.userData.id}`);
+ await armPose('carry',token,200)
+}
+async function sortAllBaskets(token){pill(ui.bState,'SORTING @ E','run');srcIndex={D:0,E:0,F:0,G:0};for(const o of ORDERS){orderState(o.id,'active');const basket=baskets[o.id-1];pill(ui.visionState,'QR BASKET','run');ui.visionText.textContent=`Basket-${o.id} → 訂單 D${o.D} E${o.E} F${o.F} G${o.G}`;await sleep(120);let slot=0;for(const cat of ['D','E','F','G'])for(let k=0;k<o[cat];k++)await pickOne(cat,basket,slot++,token);orderState(o.id,'done')}bSortDone=true;pill(ui.bState,'6 BASKETS READY','ok');pill(ui.visionState,'SORT COMPLETE','ok');log('Robot B：E 區 6 籃分揀完成；等待 A@D','ok')}
+async function transferBasketToD(basket,i,token){
+ await acquireD('B_TRANSFER',token);
+ const bx=basket.position.x;await follow(robotB,[new THREE.Vector3(clamp(bx,23.65,26.70),0,1.22)],.62,token,ui.bSpeed,`Robot B：取 Basket-${basket.userData.id}`);
+ await armPose('basket',token,230);scene.attach(basket);await moveTo(basket,new THREE.Vector3(robotB.position.x,.82,robotB.position.z-.10),.85,token,null);
+ robotB.attach(basket);basket.position.set(0,.72,-.18);
+ await follow(robotB,[new THREE.Vector3(22.35,0,.55),new THREE.Vector3(22.35,0,-3.25)],.72,token,ui.bSpeed,`Robot B：Basket-${basket.userData.id} → D transfer dock`);
+ await rotateTo(robotB,Math.PI/2,token,180);await armPose('basket',token,220);
+ const layer=Math.floor(i/2),side=i%2,localTarget=new THREE.Vector3(side?.23:-.23,.22+layer*.24,0);
+ scene.attach(basket);pallet.updateMatrixWorld(true);const target=pallet.localToWorld(localTarget.clone());const above=target.clone();above.y+=.32;
+ await moveTo(basket,above,.62,token,null);await moveTo(basket,target,.32,token,null);
+ pallet.attach(basket);basket.position.copy(localTarget);basket.rotation.set(0,Math.PI/2,0);
+ addScore('stack',2,`Basket-${basket.userData.id} 堆疊 Layer ${layer+1}`);basketsAtD++;ui.bReady.textContent=basketsAtD+'/6';
+ await follow(robotB,[new THREE.Vector3(22.35,0,-1.20),new THREE.Vector3(22.35,0,.55),new THREE.Vector3(24.20,0,1.35)],.72,token,ui.bSpeed,'Robot B：退出 D transfer dock');
+ releaseD('B_TRANSFER')
+}
+async function maybeHandshake(token){if(aAtD&&basketsAtD===6&&!handshakeDone){handshakeDone=true;pill(ui.handshake,'SYNC','run');ui.planText.textContent='A_READY ∧ B_STACK_6 → HANDSHAKE → B_CLEAR_D → A_SHIP';log('A/B handshake：A_READY + B_STACK_COMPLETE','ok');await sleep(350);pill(ui.handshake,'ACK','ok');toast('A/B 交握完成')}}
+async function runRobotB(token,{standalone=false}={}){pill(ui.bState,'RUNNING','run');beaconB.visible=true;await sortAllBaskets(token);if(standalone){await follow(robotB,[new THREE.Vector3(21.90,0,1.53)],.8,token,ui.bSpeed,'Robot B：E 終點');pill(ui.bState,'FINISHED','ok');b
