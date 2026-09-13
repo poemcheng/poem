@@ -1,0 +1,3 @@
+sition.z).toFixed(1)}) · D token=${dOwner||'FREE'}`}
+animate();addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+updateScore();viewOverview();ui.loading.classList.add('hide');log(`V6：source-grounded scene + safety supervisor ready · A-path preflight=${PREFLIGHT_OK?'PASS':'FAIL'}`,PREFLIGHT_OK?'ok':'err');
