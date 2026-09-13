@@ -1,0 +1,1 @@
+Promise.all(['./chunks/app-1.part','./chunks/app-2.part','./chunks/app-3.part','./chunks/app-4.part'].map(p=>fetch(p).then(r=>{if(!r.ok)throw new Error(p+' '+r.status);return r.text()}))).then(a=>{(0,eval)(a.join(''))}).catch(e=>{console.error(e);alert('Demo script load failed: '+e.message)});
