@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>TRC 2026 物流組｜系統整合數位孿生 V5</title>
+<link rel="stylesheet" href="./style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/",
+    "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.13.1/src/URDFLoader.js"
+  }
+}
+</script>
+</head>
+<body>
+<div id="loading"><div class="loader"></div><b>載入 TRC2026 實尺寸場景…</b><small>ZIP system_integration scene · official UR7e URDF · meters</small></div>
+<header class="topbar glass">
+  <div>
+    <div class="eyebrow">TAIWAN ROBOTICS COMPETITION · LOGISTICS</div>
+    <h1>TRC 2026 系統整合驗證｜Digital Twin</h1>
+    <p>Robot A 自動叉車 × Robot B 機器手臂 AMR + UR7e · ZIP 原始場景座標 / 公尺制 / A–E 實尺寸</p>
+  </div>
+  <div class="top-actions">
+    <button id="viewOverview" class="btn">總覽</button>
+    <button id="viewTop" class="btn">俯視</button>
+    <button id="viewE" class="btn">E 分揀</button>
+  </div>
+</header>
+
+<aside class="left glass">
+  <section>
+    <div class="section-title"><span>COMPETITION</span><b id="phase">READY</b></div>
+    <div class="time-row"><strong id="clock">20:00</strong><span>時間上限</span></div>
+    <div class="progress"><i id="missionProgress"></i></div>
+    <div class="small">5 分鐘準備 → 雙機同步啟動 → A 配送 / B 分揀 → D 交握 → 出貨。場景直接依 TRC2026 壓縮檔 system_integration 資產重建。</div>
+  </section>
+  <section>
+    <div class="section-title"><span>ROBOT A · DELIVERY</span><b id="aState" class="pill idle">STANDBY</b></div>
+    <ol id="aSteps" class="steps">
+      <li data-step="a0">A 起點 / 取空棧板</li>
+      <li data-step="a1">A：130 cm 窄道 + A1/A2/A3</li>
+      <li data-step="a2">B：8° 負重斜坡</li>
+      <li data-step="a3">C：3 個 0.8 m/s 動態障礙</li>
+      <li data-step="a4">D：等待 / 雙機交握</li>
+      <li data-step="a5">出貨區 → D 終點</li>
+    </ol>
+  </section>
+  <section>
+    <div class="section-title"><span>ROBOT B · SORTING</span><b id="bState" class="pill idle">STANDBY</b></div>
+    <div id="orders" class="orders"></div>
+    <div class="counts">本回合示範抽選：<b>D1</b> ×4 · <b>E1</b> ×11 · <b>F1</b> ×7 · <b>G1</b> ×3<br>實體籃 QR 僅為 Basket-1～6；需求量由賽前抽取訂單對照。</div>
+  </section>
+  <section>
+    <div class="section-title"><span>HANDSHAKE</span><b id="handshake" class="pill idle">WAIT</b></div>
+    <div class="handshake-grid">
+      <div><small>A@D</small><b id="aReady">NO</b></div>
+      <div><small>6 BASKETS</small><b id="bReady">0/6</b></div>
+      <div><small>A↔B</small><b id="linkState">OPEN</b></div>
+    </div>
+  </section>
+</aside>
+
+<aside class="right glass">
+  <section>
+    <div class="section-title"><span>LIVE SCORE</span><b><span id="score">0</span> / 133</b></div>
+    <div class="score-group"><label>智慧物流配送 <b id="scoreDelivery">0 / 68</b></label><div class="bar"><i id="barDelivery"></i></div></div>
+    <div class="score-group"><label>智慧物流分揀 <b id="scoreSorting">0 / 65</b></label><div class="bar"><i id="barSorting"></i></div></div>
+    <div class="score-grid">
+      <div><small>A 區</small><b id="sA">0/36</b></div><div><small>B 區</small><b id="sB">0/20</b></div>
+      <div><small>C 區</small><b id="sC">0/12</b></div><div><small>取料</small><b id="sPick">0/25</b></div>
+      <div><small>籃位</small><b id="sBasket">0/25</b></div><div><small>堆疊</small><b id="sStack">0/12</b></div>
+      <div><small>出貨</small><b id="sShip">0/3</b></div><div><small>Penalty</small><b id="penalty">0</b></div>
+    </div>
+  </section>
+  <section>
+    <div class="section-title"><span>VISION / RGB-D</span><b id="visionState" class="pill idle">IDLE</b></div>
+    <div class="cams"><div><canvas id="rgb"></canvas><small>RGB · tool0 view</small></div><div><canvas id="depth"></canvas><small>DEPTH · Z</small></div></div>
+    <div id="visionText" class="vision-text">等待 QR / 物料辨識</div>
+  </section>
+  <section>
+    <div class="section-title"><span>TELEMETRY</span><b id="safety" class="pill ok">SAFE</b></div>
+    <div class="tele-grid">
+      <div><small>Robot A speed</small><b id="aSpeed">0.00 m/s</b></div>
+      <div><small>Robot B speed</small><b id="bSpeed">0.00 m/s</b></div>
+      <div><small>Obstacle</small><b id="obs">3 moving</b></div>
+      <div><small>Mode</small><b id="mode">AUTONOMOUS</b></div>
+    </div>
+    <div id="log" class="log"></div>
+  </section>
+</aside>
+
+<div class="bottom glass">
+  <div class="command-row">
+    <input id="command" value="執行完整競賽流程" aria-label="任務命令" />
+    <button id="mic" class="btn">🎙</button>
+    <button id="run" class="btn primary">執行完整流程</button>
+    <button id="reset" class="btn">重置</button>
+  </div>
+  <div class="quick">
+    <button class="chip" data-cmd="delivery">只跑 Robot A 配送</button>
+    <button class="chip" data-cmd="sorting">只跑 Robot B 分揀</button>
+    <button class="chip" data-cmd="handshake">跳至 D 區交握展示</button>
+    <button class="chip" data-cmd="pause">暫停 / 繼續</button>
+  </div>
+</div>
+
+<button id="estop" class="estop">E-STOP</button>
+<div id="zoneHud" class="zone-hud"></div>
+<div id="toast" class="toast"></div>
+
+<script src="../trc-mio-ur7e-demo-v4/assets.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
