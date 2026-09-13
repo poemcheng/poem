@@ -1,0 +1,39 @@
+,'F','G']){for(let k=0;k<o[cat];k++){await pickOne(cat,bg,slot++);globalSlot++}}orderState(o.id,'done');log(`Basket-${o.id} 配置完成 (${slot} items)`,'ok')}
+ pill(ui.visionState,'6 BASKETS READY','ok');
+ // Carry six baskets after all sorting is complete, matching manual wording
+ for(let i=0;i<6;i++){await carryBasketToD(basketGroups[i],i)}
+ log('六個出貨籃已依 2 籃 × 3 層穩定堆疊','ok');await maybeHandshake();await waitHandshake();
+ await follow(robotB,[new THREE.Vector3(24.9,0,-.2),new THREE.Vector3(21.9,0,1.53)],1.15,'Robot B：交握後移動至 E 區終點',ui.bSpeed);pill(ui.bState,'FINISHED','ok');setBeacon(beaconB,false);log('Robot B 完成 E 區分揀與出貨籃移載','ok')
+}
+
+async function maybeHandshake(){if(aAtD&&basketsAtD===6&&!handshakeDone){handshakeDone=true;pill(ui.handshake,'HANDSHAKE','run');ui.linkState.textContent='SYNC';log('A/B 通訊交握：A_READY + B_STACK_COMPLETE','ok');await sleep(650/demoSpeed);pill(ui.handshake,'ACK','ok');ui.linkState.textContent='ACK';toast('雙機交握完成，Robot A 取得出貨許可')}}
+async function waitHandshake(){while(!handshakeDone){await maybeHandshake();await sleep(100)}}
+
+async function runFull(){if(running)return;running=true;resetScoresOnly();ui.phase.textContent='RUNNING';missionStart=Date.now();startTimer();setBeacon(beaconA,true);setBeacon(beaconB,true);log('裁判 START：兩台機器同步進入自主任務模式','ok');try{await Promise.all([runRobotA(),runRobotB()]);ui.phase.textContent='COMPLETE';ui.missionProgress.style.width='100%';toast('完整任務完成：Delivery + Sorting');log(`任務完成，總分 ${ui.score.textContent}/133`,'ok')}catch(e){console.error(e);log('任務執行錯誤：'+e.message,'err')}finally{running=false;stopTimer()}}
+
+function resetScoresOnly(){Object.keys(score).forEach(k=>score[k]=0);updateScore();clearSteps();ORDERS.forEach(o=>orderState(o.id,''));aAtD=false;basketsAtD=0;handshakeDone=false;ui.aReady.textContent='NO';ui.bReady.textContent='0/6';ui.linkState.textContent='OPEN';pill(ui.handshake,'WAIT','idle');ui.missionProgress.style.width='0%'}
+function resetMission(initialLoad=false){halted=false;paused=false;running=false;cartTime=0;stopTimer();ui.clock.textContent='20:00';ui.phase.textContent='READY';pill(ui.aState,'STANDBY','idle');pill(ui.bState,'STANDBY','idle');pill(ui.visionState,'IDLE','idle');pill(ui.safety,'SAFE','ok');ui.mode.textContent='AUTONOMOUS';ui.visionText.textContent='等待 QR / 物料辨識';resetScoresOnly();setBeacon(beaconA,false);setBeacon(beaconB,false);if(robotA){robotA.position.copy(initial.robotA.p);robotA.quaternion.copy(initial.robotA.q);robotB.position.copy(new THREE.Vector3(21.9,0,1.53));robotB.quaternion.copy(initial.robotB.q); // official system-integration start: B at E start
+ scene.attach(pallet);pallet.position.set(13.24,0,-3.33);pallet.rotation.set(0,0,0);basketGroups.forEach((g,i)=>{scene.attach(g);g.position.copy(initial['basket'+i].p);g.quaternion.copy(initial['basket'+i].q)});Object.values(sources).flat().forEach(o=>{const s=initial['src:'+o.name];if(s){s.parent.attach(o);o.position.copy(s.p);o.quaternion.copy(s.q);o.scale.set(1,1,1)}});srcIndex={D:0,E:0,F:0,G:0};armPose('home',20)}log('場景已重置到競賽待命狀態')}
+
+function startTimer(){stopTimer();let remain=20*60;ui.clock.textContent='20:00';timerHandle=setInterval(()=>{if(paused||halted)return;remain--;const m=Math.floor(remain/60),s=remain%60;ui.clock.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;const elapsed=(20*60-remain)/(20*60);ui.missionProgress.style.width=(elapsed*100)+'%';if(remain<=0){clearInterval(timerHandle);halted=true;ui.phase.textContent='TIMEOUT';pill(ui.safety,'STOP','stop')}},1000)}function stopTimer(){if(timerHandle)clearInterval(timerHandle);timerHandle=null}
+
+$('run').onclick=()=>runFull();$('reset').onclick=()=>resetMission();
+$('estop').onclick=()=>{halted=!halted;$('estop').classList.toggle('active',halted);pill(ui.safety,halted?'E-STOP':'SAFE',halted?'stop':'ok');ui.mode.textContent=halted?'POWER CUT':'AUTONOMOUS';setBeacon(beaconA,!halted&&running);setBeacon(beaconB,!halted&&running);log(halted?'E-STOP：立即停止所有動作':'E-STOP RELEASE','warn')};
+document.querySelectorAll('.chip').forEach(b=>b.onclick=async()=>{const c=b.dataset.cmd;if(c==='pause'){paused=!paused;ui.phase.textContent=paused?'PAUSED':'RUNNING';return}if(c==='delivery'&&!running){running=true;resetScoresOnly();startTimer();await runRobotA();running=false;stopTimer()}if(c==='sorting'&&!running){running=true;resetScoresOnly();startTimer();await runRobotB();running=false;stopTimer()}if(c==='handshake'&&!running){aAtD=true;basketsAtD=6;ui.aReady.textContent='YES';ui.bReady.textContent='6/6';await maybeHandshake()}});
+ui.command.addEventListener('keydown',e=>{if(e.key==='Enter')runFull()});
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(SR){const r=new SR();r.lang='zh-TW';r.onresult=e=>{ui.command.value=e.results[0][0].transcript;if(/完整|開始|執行/.test(ui.command.value))runFull()};$('mic').onclick=()=>r.start()}else $('mic').disabled=true;
+
+// RGB-D tool view
+const rgbRenderer=new THREE.WebGLRenderer({canvas:$('rgb'),antialias:true});const depthRenderer=new THREE.WebGLRenderer({canvas:$('depth'),antialias:false});const rgbCam=new THREE.PerspectiveCamera(60,1.8,.05,15);const depthMat=new THREE.MeshDepthMaterial({depthPacking:THREE.BasicDepthPacking});rgbRenderer.setPixelRatio(1);depthRenderer.setPixelRatio(1);
+function updateCams(){const w=$('rgb').clientWidth||130,h=$('rgb').clientHeight||72;rgbRenderer.setSize(w,h,false);depthRenderer.setSize(w,h,false);rgbCam.aspect=w/h;rgbCam.updateProjectionMatrix();if(tool0){const p=world(tool0);rgbCam.position.copy(p);const target=new THREE.Vector3(26.6,.75,.6);rgbCam.lookAt(target)}else{rgbCam.position.set(26.6,1.8,3);rgbCam.lookAt(26.4,.5,.5)}rgbRenderer.render(scene,rgbCam);const old=scene.overrideMaterial;scene.overrideMaterial=depthMat;depthRenderer.render(scene,rgbCam);scene.overrideMaterial=old}
+
+let cartTime=0;
+function updateDynamicCarts(dt){
+ if(!dynamicCarts.length)return;cartTime+=dt;
+ const z0=-5.25,z1=-9.72,L=Math.abs(z1-z0),period=2*L/.8;
+ dynamicCarts.forEach((c,i)=>{const t=(cartTime+i*period/3)%period;const d=.8*t;const z=d<=L?z0-d:z1+(d-L);c.position.z=z});
+}
+const clock=new THREE.Clock();let blink=0;function animate(){requestAnimationFrame(animate);const dt=clock.getDelta();if(mixer&&!paused&&!halted)mixer.update(dt);if(!paused&&!halted)updateDynamicCarts(dt);blink+=dt;if(beaconA&&beaconA.on)beaconA.g.visible=Math.sin(blink*8)>0;if(beaconB&&beaconB.on)beaconB.g.visible=Math.sin(blink*8)>0;controls.update();renderer.render(scene,camera);if(gltfRoot)updateCams();if(robotA&&robotB){const pa=robotA.position,pb=robotB.position;ui.zoneHud.textContent=`A: (${pa.x.toFixed(1)},${pa.z.toFixed(1)}) m  ·  B: (${pb.x.toFixed(1)},${pb.z.toFixed(1)}) m`}}animate();
+
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+updateScore();
