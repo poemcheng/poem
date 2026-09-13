@@ -1,54 +1,22 @@
-eep(180)}}
+Host);const armMount=new THREE.Group();armMount.position.set(0,.62,0);robotB.add(armMount);let urdfRobot=null,tool0=null;
+function fallbackB(){meshBox(.85,.36,.65,MAT.white,0,.3,0,baseHost);meshBox(.86,.09,.66,MAT.blue,0,.14,0,baseHost)}
+if(window.TRCDemoAssets?.MIO_GLB_URI){new GLTFLoader().load(window.TRCDemoAssets.MIO_GLB_URI,g=>{const q=g.scene;const bb=new THREE.Box3().setFromObject(q),sz=bb.getSize(new THREE.Vector3());q.scale.set(.85/Math.max(sz.x,.001),.85/Math.max(sz.x,.001),.85/Math.max(sz.x,.001));q.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});baseHost.add(q)},undefined,fallbackB)}else fallbackB();
+try{const xml=window.TRCDemoAssets?.UR7E_URDF;if(xml){const u=new URDFLoader();urdfRobot=u.parse(xml);urdfRobot.rotation.x=-Math.PI/2;urdfRobot.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});armMount.add(urdfRobot);tool0=urdfRobot.links?.tool0||null;log('UR7e 官方 kinematics / visual mesh 已載入','ok')}}catch(e){log('URDF loader fallback：'+e.message,'warn')}
+const JOINT_POSE={home:[-90,-65,110,-135,-90,0],scan:[-72,-72,100,-116,-90,12],pick:[-56,-92,118,-118,-90,30],carry:[-90,-58,96,-128,-90,0],basket:[-112,-78,112,-126,-90,-12]};const rosJoint=['shoulder_pan_joint','shoulder_lift_joint','elbow_joint','wrist_1_joint','wrist_2_joint','wrist_3_joint'];
 
-function attachKeepingWorld(parent,obj){parent.attach(obj)}
-function localPlace(obj,parent,localPos,localRotY=0){parent.attach(obj);obj.position.copy(localPos);obj.rotation.set(0,localRotY,0);obj.scale.set(1,1,1)}
+function makeBeacon(parent,y){const g=new THREE.Group(),mat=new THREE.MeshStandardMaterial({color:0xffc34a,emissive:0xff8b00,emissiveIntensity:2});const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.09,18),mat);lamp.position.y=y;g.add(lamp);parent.add(g);g.visible=false;return g}const beaconA=makeBeacon(robotA,1.94),beaconB=makeBeacon(robotB,1.62);
 
-async function armPose(name,ms=650){const tgt=JOINT_POSE[name];if(!tgt)return;pill(ui.bState,'MOVEIT2 '+name.toUpperCase(),'run');const rosNames=['shoulder_pan_joint','shoulder_lift_joint','elbow_joint','wrist_1_joint','wrist_2_joint','wrist_3_joint'];const starts=urdfRobot?rosNames.map(n=>urdfRobot.joints?.[n]?.angle||0):joints.map(j=>j?.rotation.y||0);const t0=performance.now();return new Promise(resolve=>{function step(now){if(halted||paused){requestAnimationFrame(step);return}const u=clamp((now-t0)/(ms/demoSpeed),0,1),e=u*u*(3-2*u);for(let i=0;i<6;i++){const q=THREE.MathUtils.lerp(starts[i],THREE.MathUtils.degToRad(tgt[i]),e);if(urdfRobot?.joints?.[rosNames[i]])urdfRobot.joints[rosNames[i]].setJointValue(q);else if(joints[i])joints[i].rotation.y=q}if(u<1)requestAnimationFrame(step);else resolve()}requestAnimationFrame(step)})}
+let paused=false,halted=false,running=false,aAtD=false,basketsAtD=0,handshakeDone=false,timerHandle=null,cartTime=0,srcIndex={D:0,E:0,F:0,G:0};
+const initialA=robotA.position.clone(),initialB=robotB.position.clone(),initialPallet=pallet.position.clone(),initialBaskets=baskets.map(b=>b.position.clone());
+function setStep(id,state){document.querySelectorAll('.steps li').forEach(li=>{if(li.dataset.step===id){li.classList.remove('active','done');if(state)li.classList.add(state)}})}function clearSteps(){document.querySelectorAll('.steps li').forEach(li=>li.classList.remove('active','done'))}function orderState(i,state){const e=$('order-'+i);e.classList.remove('active','done');if(state)e.classList.add(state)}
+async function waitRun(){while(paused||halted)await sleep(80)}
+function moveTo(obj,to,speed,label,speedEl){return new Promise(resolve=>{const from=obj.position.clone(),dist=from.distanceTo(to),dur=Math.max(240,dist/Math.max(speed,.1)*260),st=performance.now(),last=from.clone();if(label)log(label);function step(now){if(paused||halted){requestAnimationFrame(step);return}const u=clamp((now-st)/dur,0,1),e=u*u*(3-2*u);obj.position.lerpVectors(from,to,e);const dx=to.x-from.x,dz=to.z-from.z;if(Math.hypot(dx,dz)>.01)obj.rotation.y=Math.atan2(dx,dz);if(speedEl){const ds=obj.position.distanceTo(last);speedEl.textContent=Math.min(1.95,ds*60).toFixed(2)+' m/s';last.copy(obj.position)}if(u<1)requestAnimationFrame(step);else{if(speedEl)speedEl.textContent='0.00 m/s';resolve()}}requestAnimationFrame(step)})}
+async function follow(obj,pts,speed,label,el){if(label)log(label);for(const p of pts){await waitRun();await moveTo(obj,p,speed,null,el)}}
+async function armPose(name,ms=440){if(!urdfRobot)return;const tgt=JOINT_POSE[name];const start=rosJoint.map(n=>urdfRobot.joints?.[n]?.angle||0),st=performance.now();pill(ui.bState,'MOVEIT2 '+name.toUpperCase(),'run');return new Promise(resolve=>{function s(now){if(paused||halted){requestAnimationFrame(s);return}const u=clamp((now-st)/ms,0,1),e=u*u*(3-2*u);rosJoint.forEach((n,i)=>urdfRobot.joints?.[n]?.setJointValue(THREE.MathUtils.lerp(start[i],THREE.MathUtils.degToRad(tgt[i]),e)));if(u<1)requestAnimationFrame(s);else resolve()}requestAnimationFrame(s)})}
 
-async function runRobotA(){
- pill(ui.aState,'RUNNING','run');setBeacon(beaconA,true);setStep('a0','active');
- // start → pallet
- await follow(robotA,[new THREE.Vector3(13.18,0,-1.55),new THREE.Vector3(13.20,0,-2.85)],1.05,'Robot A：由 A 起點接近空棧板',ui.aSpeed);
- attachKeepingWorld(robotA,pallet);pallet.position.set(.05,.16,-.82);pallet.rotation.set(0,0,0);await sleep(350);addScore('A',4,'棧板完全移出存放區');
- setStep('a0','done');setStep('a1','active');
- // 130 cm lane, then A1-A3 slalom; glTF z=-BlenderY
- const Aroute=[new THREE.Vector3(11.2,0,-2.37),new THREE.Vector3(8.45,0,-2.37),new THREE.Vector3(7.5,0,-1.12),new THREE.Vector3(5.8,0,-1.12),new THREE.Vector3(5.15,0,-2.45),new THREE.Vector3(3.65,0,-2.45),new THREE.Vector3(3.05,0,-3.75),new THREE.Vector3(.95,0,-4.02)];
- await follow(robotA,Aroute,1.15,'A 區：選擇 130 cm 窄道，進入 A1/A2/A3 靜態避障',ui.aSpeed);addScore('A',20,'130 cm 窄道完全通過');addScore('A',4,'A1 完全通過');addScore('A',4,'A2 完全通過');addScore('A',4,'A3 完全通過');setStep('a1','done');
- setStep('a2','active');
- // B start + 8 degree ramp exact geometry 1.5 m up, 2.5 m deck, 1.5 m down
- const h8=.210811252;const Broute=[new THREE.Vector3(.95,0,-5.9),new THREE.Vector3(3.7,0,-9.15),new THREE.Vector3(4.27,0.02,-9.15),new THREE.Vector3(5.77,h8,-9.15),new THREE.Vector3(8.27,h8,-9.15),new THREE.Vector3(9.77,0.02,-9.15),new THREE.Vector3(13.15,0,-9.07)];
- await follow(robotA,Broute,.9,'B 區：8° 負重斜坡（1.5 m 上坡 + 2.5 m 平台 + 1.5 m 下坡）',ui.aSpeed);addScore('B',10,'8° 上坡完成');addScore('B',10,'8° 下坡完成');setStep('a2','done');
- setStep('a3','active');
- // C crossing at 3 tracks with safety waits
- const crosses=[{p:new THREE.Vector3(18.087,0,-8.65),cart:dynamicCarts[0]},{p:new THREE.Vector3(21.054,0,-7.45),cart:dynamicCarts[1]},{p:new THREE.Vector3(24.021,0,-6.45),cart:dynamicCarts[2]}];
- await follow(robotA,[new THREE.Vector3(15.2,0,-8.85)],1.0,'C 區：進入三個 0.8 m/s 動態障礙區',ui.aSpeed);
- for(let i=0;i<crosses.length;i++){await waitCartClear(crosses[i].cart,crosses[i].p.z);pill(ui.safety,'SAFE','ok');await follow(robotA,[crosses[i].p],1.0,`C${i+1}：安全間隙通過`,ui.aSpeed);addScore('C',4,`C${i+1} 無碰撞通過`)}
- await follow(robotA,[new THREE.Vector3(27.05,0,-5.9),new THREE.Vector3(24.6,0,-3.15)],1.1,'Robot A：前往 D 區等待交接',ui.aSpeed);setStep('a3','done');setStep('a4','active');aAtD=true;ui.aReady.textContent='YES';pill(ui.aState,'WAIT @ D','run');log('Robot A 已抵達 D 區，等待 Robot B 完成六籃','ok');
- await waitHandshake();setStep('a4','done');setStep('a5','active');
- // shipping zone 2 then D end
- await follow(robotA,[new THREE.Vector3(21.8,0,-2.0),new THREE.Vector3(19.77,0,-1.07)],.85,'Robot A：搬運出貨棧板至任意出貨區',ui.aSpeed);addScore('ship',3,'出貨棧板移至出貨區');
- await follow(robotA,[new THREE.Vector3(23.4,0,-2.8),new THREE.Vector3(27.0,0,-4.02)],1.05,'Robot A：前往 D 區終點',ui.aSpeed);setStep('a5','done');pill(ui.aState,'FINISHED','ok');setBeacon(beaconA,false);log('Robot A 完成配送與出貨','ok')
-}
+async function waitCartClear(cart,xCross){while(true){await waitRun();if(Math.abs(cart.position.z+7.5)>1.0){pill(ui.safety,'SAFE','ok');return}pill(ui.safety,'PROTECTIVE STOP','run');ui.mode.textContent='WAITING';log(`C 區 safety scanner：track @ x=${xCross.toFixed(3)} m occupied`,'warn');await sleep(150)}}
+async function runRobotA(){pill(ui.aState,'RUNNING','run');beaconA.visible=true;setStep('a0','active');await follow(robotA,[new THREE.Vector3(13.2,0,-2.6),new THREE.Vector3(13.1,0,-3.15)],1.05,'Robot A：A 起點取空棧板',ui.aSpeed);robotA.attach(pallet);pallet.position.set(0,.19,-.78);addScore('A',4,'棧板完全移出存放區');setStep('a0','done');setStep('a1','active');await follow(robotA,[new THREE.Vector3(11.0,0,-.72),new THREE.Vector3(9.8,0,-.72),new THREE.Vector3(8.5,0,-1.35),new THREE.Vector3(7.6,0,-.55),new THREE.Vector3(6.25,0,-1.25),new THREE.Vector3(5.55,0,-2.25),new THREE.Vector3(4.05,0,-2.55),new THREE.Vector3(3.0,0,-3.75),new THREE.Vector3(.9,0,-4.25)],.95,'A 區：130 cm 窄道 → A1/A2/A3 靜態避障',ui.aSpeed);addScore('A',20,'130 cm 窄道完全通過');addScore('A',4,'A1 完全通過');addScore('A',4,'A2 完全通過');addScore('A',4,'A3 完全通過');setStep('a1','done');setStep('a2','active');await follow(robotA,[new THREE.Vector3(.9,0,-5.8),new THREE.Vector3(4.2,0,-9.15),new THREE.Vector3(5.77,h8,-9.15),new THREE.Vector3(8.27,h8,-9.15),new THREE.Vector3(9.82,0,-9.15),new THREE.Vector3(13.35,0,-9.05)],.82,'B 區：8° 負重斜坡',ui.aSpeed);addScore('B',10,'8° 上坡完成');addScore('B',10,'8° 下坡完成');setStep('a2','done');setStep('a3','active');await follow(robotA,[new THREE.Vector3(15.1,0,-8.7)],.92,'C 區：進入 C1/C2/C3',ui.aSpeed);for(let i=0;i<3;i++){await waitCartClear(dynamicCarts[i],dynamicCarts[i].position.x);await moveTo(robotA,new THREE.Vector3(dynamicCarts[i].position.x,0,-7.45+i*.18),.9,`C${i+1} 無碰撞通過`,ui.aSpeed);addScore('C',4,`C${i+1} 無碰撞`)}await follow(robotA,[new THREE.Vector3(27.0,0,-5.7),new THREE.Vector3(24.8,0,-3.25)],.95,'Robot A：抵達 D 等待交握',ui.aSpeed);setStep('a3','done');setStep('a4','active');aAtD=true;ui.aReady.textContent='YES';pill(ui.aState,'WAIT @ D','run');await waitHandshake();setStep('a4','done');setStep('a5','active');await follow(robotA,[new THREE.Vector3(22.45,0,-1.1)],.78,'Robot A：出貨棧板移至出貨區',ui.aSpeed);addScore('ship',3,'出貨棧板完成出貨');await follow(robotA,[new THREE.Vector3(27.05,0,-4.0)],.95,'Robot A：移動至 D 終點',ui.aSpeed);setStep('a5','done');pill(ui.aState,'FINISHED','ok');beaconA.visible=false}
 
-let srcIndex={D:0,E:0,F:0,G:0};
-function basketLocalSlot(n){const col=n%3,row=Math.floor(n/3);return new THREE.Vector3((col-1)*.13,.25+row*.11,(n%2?-.08:.08))}
-async function pickOne(cat,basketGroup,indexInBasket){const sku=SKU[cat],arr=sources[cat],item=arr[srcIndex[cat]++];if(!item)return;ui.visionText.textContent=`物料格 QR=${cat} → ${sku} ${SKU_NAME[sku]} · grasp pose estimating…`;pill(ui.visionState,'DETECTED','ok');await armPose('scan',260);await sleep(120);await armPose('pick',360); // transfer item visually into basket
- const bWorld=world(basketGroup);const itemWorld=world(item);const tmp=new THREE.Group();scene.add(tmp);tmp.position.copy(itemWorld);tmp.attach(item);await moveObject(tmp,new THREE.Vector3(bWorld.x,bWorld.y+.35,bWorld.z),1.8,null,null);basketGroup.attach(item);item.position.copy(basketLocalSlot(indexInBasket));item.scale.multiplyScalar(.85);scene.remove(tmp);await armPose('basket',320);addScore('pick',1,`${sku} 從物料區取出`);addScore('basket',1,`${sku} 正確放入 Basket-${basketGroup.userData.id}`);await armPose('carry',240)}
-
-async function carryBasketToD(group,slotIndex){
- // place basket on robot B cargo deck, travel E→D, then stack 2x3
- const p=world(group);const carrier=new THREE.Group();scene.add(carrier);carrier.position.copy(p);carrier.attach(group);await moveObject(carrier,new THREE.Vector3(robotB.position.x,robotB.position.y+.72,robotB.position.z),1.5,'UR7e：出貨籃移載至 AMR 搬運面',null);robotB.attach(group);group.position.set(0,.78,-.25);scene.remove(carrier);
- await follow(robotB,[new THREE.Vector3(24.8,0,.25),new THREE.Vector3(24.4,0,-2.35)],1.1,`Robot B：Basket-${group.userData.id} 送往 D 區`,ui.bSpeed);
- await armPose('basket',320);
- // pallet is attached to robot A; stack relative to pallet object
- const layer=Math.floor(slotIndex/2),side=slotIndex%2;localPlace(group,pallet,new THREE.Vector3(side?-.22:.22,.17+layer*.24,0),Math.PI/2);addScore('stack',2,`Basket-${group.userData.id} 堆疊於棧板（Layer ${layer+1}）`);basketsAtD++;ui.bReady.textContent=basketsAtD+'/6';
- await armPose('carry',260);
- if(basketsAtD<6)await follow(robotB,[new THREE.Vector3(24.8,0,.15),new THREE.Vector3(25.7,0,1.2)],1.2,'Robot B：返回 E 區取下一籃',ui.bSpeed);
-}
-
-async function runRobotB(){
- pill(ui.bState,'RUNNING','run');setBeacon(beaconB,true);srcIndex={D:0,E:0,F:0,G:0};
- // move B to E start then source/target corridor
- await follow(robotB,[new THREE.Vector3(21.9,0,1.53),new THREE.Vector3(25.6,0,1.05)],1.0,'Robot B：E 起點出發，進入智慧分揀區',ui.bSpeed);
- let globalSlot=0;
- for(const o of ORDERS){await waitUnpaused();orderState(o.id,'active');const bg=basketGroups[o.id-1];bg.userData.id=o.id;const payload=`Basket-${o.id}-D${o.D}-E${o.E}-F${o.F}-G${o.G}`;pill(ui.visionState,'QR READ','run');ui.visionText.textContent=`籃位 QR=Basket-${o.id} · 讀取準備階段訂單 → D${o.D} E${o.E} F${o.F} G${o.G}`;log(`辨識籃位 QR：Basket-${o.id}；對照已抽取訂單 ${payload}`,'ok');await sleep(280/demoSpeed);let slot=0;for(const cat of ['D','E'
+function itemSlot(n){return new THREE.Vector3((n%3-1)*.12,.25+Math.floor(n/3)*.08,(n%2?-.06:.06))}
+async function pickOne(cat,basket,slot){const item=sources[cat][srcIndex[cat]++];if(!item)return;const sku=SKU[cat];pill(ui.visionState,'DETECTED','ok');ui.visionText.textContent=`QR=${cat} · ${sku} · ${SKU_NAME[sku]} · pose / grasp OK`;await armPose('scan',220);await armPose('pick',280);const wp=new THREE.Vector3();item.getWorldPosition(wp);scene.attach(item);await moveTo(item,new THREE.Vector3(robotB.position.x,1.25,robotB.position.z),1.8,null,null);basket.attach(item);item.position.copy(itemSlot(slot));item.rotation.set(0,.15*(slot%3),0);addScore('pick',1,`${sku} 取出`);addScore('basket',1,`${sku} 放入 Basket-${basket.userData.id}`);await armPose('basket',260)}
+async function carryBasketToD(basket,i){scene.attach(basket);await moveTo(baske
