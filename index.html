@@ -1,7 +1,74 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111d"><title>CYUT IEM Immersive Guide｜朝陽科大工管系智慧導覽</title><meta name="description" content="朝陽科技大學工業工程與管理系 WebGL 沉浸式智慧導覽"><link rel="stylesheet" href="immersive.css"></head><body>
-<div class="app"><header class="topbar"><button class="brand" id="homeBtn"><span class="brandmark">IE</span><span class="brandcopy"><strong>CYUT IEM Immersive Guide</strong><small>朝陽科技大學｜工業工程與管理系</small></span></button><nav class="topnav"><button id="campusTab" class="navbtn active">校園 3D</button><button id="indoorTab" class="navbtn">理工大樓</button><a class="navbtn" href="https://iem.cyut.edu.tw/" target="_blank" rel="noreferrer">系網 ↗</a></nav></header>
-<main class="main">
-<section id="campusView" class="view active"><div class="scene"><canvas id="campusCanvas"></canvas><div id="campusLabels" class="overlay"></div></div><div class="hud"><div class="glass searchbox"><span>⌕</span><input id="searchInput" placeholder="搜尋 E-619、3D 掃描、人因、PLC…"></div><div id="searchResults" class="glass results" hidden></div></div><div class="tools"><button id="resetCampus">↻</button><button id="orbitToggle">自動環視</button></div><div class="glass status"><i></i><span>本機 3D 模型已載入 · 不再即時連線 Overpass / OSM</span></div><aside class="glass hero"><div class="eyebrow">SCIENCE & ENGINEERING BUILDING · IEM</div><h1>理工大樓</h1><p>點選 3D 建築，或直接進入 1F / 5F / 6F 沉浸式室內導覽。</p><div class="metrics"><div><span>資料模式</span><b>Local Snapshot</b></div><div><span>樓層</span><b>7F</b></div><div><span>IEM</span><b>1F · 5F · 6F</b></div></div><div class="actions"><button class="primary" id="enterBuilding">進入理工大樓</button><a class="secondary" href="https://www.openstreetmap.org/way/292141618" target="_blank" rel="noreferrer">OSM 來源 ↗</a></div></aside></section>
-<section id="indoorView" class="view"><div class="indoor-layout"><aside class="floorbar"><h3>理工大樓<br>FLOORS</h3><div id="floorButtons"></div><small class="floor-note">WebGL dollhouse<br>room + equipment hotspots</small></aside><section class="indoor-main"><div class="scene"><canvas id="indoorCanvas"></canvas><div id="indoorLabels" class="overlay"></div><div id="hotspots" class="overlay"></div></div><div class="indoor-head"><div class="eyebrow" id="floorEyebrow">6F · IEM</div><h2 id="floorTitle">工管系研究實驗室</h2><p id="floorSubtitle"></p></div><div class="camera-modes"><button id="overviewBtn">鳥瞰</button><button id="walkBtn">走入</button><button id="backCampus">← 校園</button></div><div id="roomRail" class="roomrail"></div></section><aside id="drawer" class="drawer"><div id="drawerEmpty" class="drawer-empty"><div><div class="big">⌁</div><b>選擇一間實驗室</b><p>相機會拉近空間，並顯示設備／能力熱點。</p></div></div><div id="drawerContent" hidden></div></aside></div></section>
-</main><footer class="footer">OSM provenance · CYUT IEM official room data · Runtime rendering uses local cached data only</footer></div>
-<script src="data/iem-data.js"></script><script src="immersive.js"></script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#07111d"/>
+  <title>CYUT IEM Digital Twin Guide｜朝陽科大工管系</title>
+  <meta name="description" content="朝陽科技大學工業工程與管理系 Digital Twin Guide：離線 campus.geojson、理工大樓樓層與實驗室設備 3D 數位孿生。"/>
+  <link rel="stylesheet" href="immersive.css"/>
+  <script type="importmap">
+  {"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}
+  </script>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <button class="brand" id="brandHome" aria-label="回到校園">
+      <span class="brandmark">IE</span>
+      <span><strong>CYUT IEM Digital Twin Guide</strong><small>朝陽科技大學｜工業工程與管理系</small></span>
+    </button>
+    <nav class="topnav">
+      <button id="campusTab" class="navbtn active">校園 3D</button>
+      <button id="buildingTab" class="navbtn">理工大樓</button>
+      <button id="labsTab" class="navbtn">實驗室 Twin</button>
+      <a class="navbtn ghost" href="https://iem.cyut.edu.tw/p/404-1032-9806.php?Lang=zh-tw" target="_blank" rel="noreferrer">官方設備 ↗</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <aside class="left panel">
+      <div class="kicker">DIGITAL TWIN NAVIGATION</div>
+      <h2 id="navTitle">校園數位孿生</h2>
+      <p id="navSubtitle">靜態 campus.geojson 直接載入，不再連線 Overpass。</p>
+      <div class="search"><span>⌕</span><input id="searchInput" placeholder="搜尋 E-619、UR7e、Tobii、3D Scanner…"></div>
+      <div id="searchResults" class="search-results" hidden></div>
+      <div class="section-title">LEVEL</div>
+      <div class="mode-list">
+        <button class="sidebtn active" data-mode="campus"><b>01</b><span>校園 Campus</span></button>
+        <button class="sidebtn" data-mode="building"><b>02</b><span>理工大樓 Building</span></button>
+        <button class="sidebtn" data-mode="lab"><b>03</b><span>實驗室 Lab Twin</span></button>
+      </div>
+      <div class="section-title">LABORATORIES</div>
+      <div id="labList" class="lab-list"></div>
+      <div class="source-note"><i></i><span>公開資料：朝陽工管「實驗室與設備」；目前新增設備另標示「現況／場域配置」。</span></div>
+    </aside>
+
+    <section class="stage">
+      <div class="stagebar panel">
+        <div><span id="crumb">CYUT / Campus</span><strong id="sceneTitle">校園 OSM 離線 3D</strong></div>
+        <div class="stage-actions">
+          <button id="overviewBtn">鳥瞰</button>
+          <button id="walkBtn">走入</button>
+          <button id="resetBtn">重設</button>
+        </div>
+      </div>
+      <div id="viewport" class="viewport">
+        <div id="loader" class="loader"><span></span><b>Loading Digital Twin…</b></div>
+        <div id="labels" class="labels"></div>
+        <div class="runtime-badge"><i></i><span>Runtime: local GeoJSON + local twin data</span></div>
+        <div class="controls-hint">拖曳旋轉 · 滾輪縮放 · 點選建物 / 樓層 / 設備</div>
+      </div>
+      <div id="quickbar" class="quickbar"></div>
+    </section>
+
+    <aside class="right panel">
+      <div id="detail"></div>
+    </aside>
+  </main>
+
+  <footer class="footer">Campus geometry © OpenStreetMap contributors · Department information © CYUT IEM · Digital twin scene is a navigational / research visualization</footer>
+</div>
+<script type="module" src="immersive.js"></script>
+</body>
+</html>
