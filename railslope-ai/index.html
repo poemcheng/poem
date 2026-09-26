@@ -9,83 +9,109 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><div class="logo">RS</div><div><strong>RailSlope</strong><small>鐵道邊坡與營運韌性決策平台</small></div></div>
+  <div class="brand"><div class="logo">RS</div><div><strong>RailSlope</strong><small>鐵道邊坡 × 事件記憶 × 營運韌性決策平台</small></div></div>
   <nav class="nav">
     <button class="active">綜合態勢</button>
     <button>邊坡清冊</button>
-    <button>事件記憶</button>
+    <button>案例鏈</button>
     <button>營運影響</button>
     <button>設備維護</button>
   </nav>
-  <div class="meta"><b>競賽資料驗證環境</b><br>邊坡：2026/06/24｜行車：2026/05/03–05/31｜容量：2025</div>
+  <div class="meta"><b>競賽資料驗證環境</b><br>TRA-03 / 04 / 08 / 09 / 10 / 11 串接原型</div>
 </header>
-<div class="notice">介面已改為<strong>證據導向</strong>：不以生成式敘述或黑箱 AI 分數主導，而是先顯示路線、歷史事件、營運曝露與建議處置。</div>
+<div class="notice">本版將核心工作流調整為：<strong>邊坡資產 → 歷史事件 → 受影響列車 → 延誤後果 → 路線容量 → 處置記憶</strong>，並以較接近真實地理位置的臺鐵路網示意呈現。</div>
 
 <main class="page">
   <div class="page-title">
     <div>
       <h1>綜合態勢</h1>
-      <p>先找「哪一條線要關注」，再看為什麼、過去發生過什麼，以及這次應如何處置。</p>
+      <p>先選路線，再看該線的真實邊坡資產、歷史異常事件、列車延誤與瓶頸容量如何串成同一條案例鏈。</p>
     </div>
     <div class="actions">
-      <button class="btn primary" id="btnDemo">示範：北迴線事件判讀</button>
+      <button class="btn primary" id="btnDemo">示範：北迴線案例鏈</button>
       <button class="btn" id="btnTerrain">坡面檢視</button>
-      <button class="btn">匯出巡檢摘要</button>
+      <button class="btn">匯出摘要</button>
     </div>
   </div>
 
   <section class="cards">
     <article class="card"><span>列管邊坡</span><b>5,067</b><small>TRA-03 全台總量</small></article>
     <article class="card red"><span>C高邊坡</span><b>717</b><small>占 14.15%</small></article>
-    <article class="card amber"><span>延誤 ≥ 5 分站次</span><b>79,198</b><small>7.51% / 1,054,903 站次</small></article>
+    <article class="card amber"><span>受影響列車鏈結</span><b>31</b><small>目前原型已綁定的示範案例數</small></article>
     <article class="card amber"><span>最高區間利用率</span><b>94.8%</b><small>八堵–樹林，TRA-11</small></article>
-    <article class="card green"><span>天然災變原因紀錄</span><b>146</b><small>2026/05 行車資料中的原因欄</small></article>
+    <article class="card green"><span>可追溯記憶</span><b>6 類</b><small>邊坡 / 事件 / 列車 / 延誤 / 容量 / 處置</small></article>
   </section>
 
   <section class="layout">
     <aside class="panel">
-      <div class="panel-h"><div><b>關注路線</b><small>依邊坡曝露 × 營運曝露 × 歷史案例排序</small></div><span class="tag">人工可判讀</span></div>
-      <div class="panel-note">此清單用來支援值班決策，不用讓使用者自己從整張地圖找答案。每列都保留可解釋的證據欄位。</div>
+      <div class="panel-h"><div><b>關注路線</b><small>依邊坡曝露 × 容量 × 已有案例鏈排序</small></div><span class="tag">Evidence First</span></div>
+      <div class="panel-note">這裡不是單純列 KPI，而是列出值班或巡檢人員最需要先點進去的路線。每筆資料都可往下追到資產、事件與影響證據。</div>
       <div class="list" id="lineList"></div>
     </aside>
 
     <section class="panel network">
       <div class="network-tools">
-        <button class="btn" id="btnReset">顯示全線</button>
-        <button class="btn" id="btnShowEvents">查看歷史案例</button>
+        <button class="btn" id="btnReset">回到縱貫線</button>
+        <button class="btn" id="btnShowChain">查看案例鏈</button>
         <button class="btn" id="btnShowOps">查看營運影響</button>
       </div>
-      <svg viewBox="0 0 760 720" aria-label="臺鐵路網示意">
-        <path d="M372,74 C280,101 219,159 194,223 C159,310 167,417 221,514 C255,577 325,614 385,594" fill="none" stroke="#dfe5e9" stroke-width="34" stroke-linecap="round"/>
-        <path d="M385,594 C473,565 539,498 562,406 C583,314 558,215 507,132 C468,87 423,68 372,74" fill="none" stroke="#dfe5e9" stroke-width="34" stroke-linecap="round"/>
-        <path id="r-縱貫線" class="route" data-line="縱貫線" d="M372,74 C280,101 219,159 194,223 C159,310 167,417 221,514 C255,577 325,614 385,594" stroke="#c24d4d" stroke-width="8"/>
-        <path id="r-屏東線" class="route" data-line="屏東線" d="M313,587 C345,605 374,607 405,592" stroke="#c24d4d" stroke-width="8"/>
-        <path id="r-南迴線" class="route" data-line="南迴線" d="M405,592 C450,574 488,543 514,507" stroke="#8597a0" stroke-width="6"/>
-        <path id="r-臺東線" class="route" data-line="臺東線" d="M514,507 C551,438 568,358 560,294 C553,236 540,182 507,132" stroke="#b9821d" stroke-width="7"/>
-        <path id="r-北迴線" class="route" data-line="北迴線" d="M507,132 C477,94 432,71 372,74" stroke="#b9821d" stroke-width="8"/>
-        <path id="r-宜蘭線" class="route" data-line="宜蘭線" d="M372,74 C428,79 470,98 507,132" stroke="#c24d4d" stroke-width="8"/>
-        <path id="r-臺中線" class="route" data-line="臺中線" d="M229,179 C270,195 287,236 279,279" stroke="#b9821d" stroke-width="6"/>
-        <path id="r-內灣線" class="branch" data-line="內灣線" d="M243,156 C207,145 183,142 151,146"/>
-        <path id="r-集集線" class="branch" data-line="集集線" d="M203,334 C242,339 274,356 302,383"/>
-        <path id="r-平溪線" class="branch" data-line="平溪線" d="M391,91 C420,116 440,131 460,149"/>
-        <path id="r-深澳線" class="branch" data-line="深澳線" d="M383,84 C411,77 433,74 457,71"/>
-        <circle class="station" cx="372" cy="74" r="5"/><text class="label" x="353" y="56">臺北 / 八堵</text>
-        <circle class="station" cx="507" cy="132" r="5"/><text class="label" x="516" y="128">蘇澳 / 和平</text>
-        <circle class="station" cx="560" cy="294" r="5"/><text class="label" x="571" y="297">花蓮</text>
-        <circle class="station" cx="514" cy="507" r="5"/><text class="label" x="523" y="515">臺東</text>
-        <circle class="station" cx="385" cy="594" r="5"/><text class="label" x="389" y="622">高雄</text>
-        <circle class="station" cx="203" cy="334" r="5"/><text class="label" x="144" y="334">彰化 / 二水</text>
-        <circle class="station" cx="229" cy="179" r="5"/><text class="label" x="171" y="175">竹南</text>
-        <text class="subtitle" x="92" y="70">顏色代表該線最高區間利用率：紅 ≥85%、黃 70–84%、灰 &lt;70%</text>
+      <div class="map-head">
+        <b>臺鐵路網地理示意</b>
+        <small>以臺灣實際相對位置重新繪製；用於看懂路線分布，不再採用抽象閉環圖。</small>
+      </div>
+      <svg viewBox="0 0 760 820" aria-label="臺鐵路網地理示意圖">
+        <rect x="0" y="0" width="760" height="820" fill="#f7fbfd"/>
+        <path d="M419 73 C472 83 518 117 548 161 C574 201 589 251 594 307 C600 369 597 432 583 496 C570 553 547 619 518 677 C490 730 454 773 413 793 C374 812 334 804 299 773 C263 741 230 690 204 634 C180 578 164 513 158 446 C151 374 155 308 169 248 C183 190 208 139 246 104 C292 63 355 55 419 73 Z" fill="#eff4f7" stroke="#d7e1e7" stroke-width="2"/>
+        <g class="legend-box">
+          <rect x="32" y="24" width="248" height="78" rx="10" fill="#ffffff" stroke="#dbe3e8"/>
+          <text x="48" y="48" class="legend-title">路線顏色 = 最高區間利用率</text>
+          <line x1="50" y1="68" x2="90" y2="68" stroke="#c24d4d" stroke-width="7" stroke-linecap="round"/>
+          <text x="98" y="72" class="legend-text">紅 ≥ 85%</text>
+          <line x1="150" y1="68" x2="190" y2="68" stroke="#c28b27" stroke-width="7" stroke-linecap="round"/>
+          <text x="198" y="72" class="legend-text">黃 70–84%</text>
+          <line x1="50" y1="88" x2="90" y2="88" stroke="#8aa0ad" stroke-width="7" stroke-linecap="round"/>
+          <text x="98" y="92" class="legend-text">灰 &lt; 70%</text>
+        </g>
+        <g class="rail-layer">
+          <path id="r-縱貫線" class="route" data-line="縱貫線" d="M394 126 C354 157 316 209 286 275 C258 340 245 410 249 487 C253 572 275 646 323 713" stroke="#c24d4d" stroke-width="9"/>
+          <path id="r-屏東線" class="route" data-line="屏東線" d="M323 713 C335 732 349 746 367 761" stroke="#c24d4d" stroke-width="8"/>
+          <path id="r-宜蘭線" class="route" data-line="宜蘭線" d="M394 126 C431 132 467 149 496 175 C519 195 536 218 548 246" stroke="#c24d4d" stroke-width="8"/>
+          <path id="r-北迴線" class="route" data-line="北迴線" d="M548 246 C565 291 573 344 574 398 C575 430 572 462 568 492" stroke="#c28b27" stroke-width="8"/>
+          <path id="r-臺東線" class="route" data-line="臺東線" d="M568 492 C560 556 548 615 520 675" stroke="#c28b27" stroke-width="8"/>
+          <path id="r-南迴線" class="route" data-line="南迴線" d="M520 675 C483 723 430 754 367 761" stroke="#8aa0ad" stroke-width="7"/>
+          <path id="r-臺中線" class="route" data-line="臺中線" d="M291 292 C323 342 335 403 327 457" stroke="#c28b27" stroke-width="7"/>
+          <path id="r-內灣線" class="branch" data-line="內灣線" d="M287 292 C332 288 369 289 405 297"/>
+          <path id="r-平溪線" class="branch" data-line="平溪線" d="M501 177 C525 153 550 141 582 136"/>
+          <path id="r-深澳線" class="branch" data-line="深澳線" d="M492 190 C525 182 556 181 590 187"/>
+          <path id="r-集集線" class="branch" data-line="集集線" d="M279 540 C315 545 343 560 372 587"/>
+          <path id="r-花蓮港線" class="branch" data-line="花蓮港線" d="M567 430 C594 430 616 435 635 449"/>
+          <path id="r-成追線" class="branch" data-line="成追線" d="M305 442 C324 452 344 463 359 475"/>
+        </g>
+
+        <g class="station-group">
+          <circle class="station" cx="394" cy="126" r="6"/><text class="label" x="373" y="108">臺北 / 八堵</text>
+          <circle class="station" cx="287" cy="292" r="6"/><text class="label" x="226" y="286">新竹</text>
+          <circle class="station" cx="279" cy="540" r="6"/><text class="label" x="214" y="544">臺中 / 二水</text>
+          <circle class="station" cx="323" cy="713" r="6"/><text class="label" x="285" y="736">高雄</text>
+          <circle class="station" cx="367" cy="761" r="6"/><text class="label" x="357" y="787">屏東</text>
+          <circle class="station" cx="548" cy="246" r="6"/><text class="label" x="560" y="244">宜蘭 / 蘇澳</text>
+          <circle class="station" cx="574" cy="398" r="6"/><text class="label" x="586" y="403">花蓮 / 和平</text>
+          <circle class="station" cx="520" cy="675" r="6"/><text class="label" x="531" y="680">臺東</text>
+          <circle class="minor-station" cx="359" cy="475" r="4"/><text class="minor-label" x="367" y="479">成功 / 追分</text>
+          <circle class="minor-station" cx="372" cy="587" r="4"/><text class="minor-label" x="380" y="592">集集</text>
+          <circle class="minor-station" cx="405" cy="297" r="4"/><text class="minor-label" x="412" y="302">內灣</text>
+          <circle class="minor-station" cx="590" cy="187" r="4"/><text class="minor-label" x="599" y="191">深澳</text>
+          <circle class="minor-station" cx="582" cy="136" r="4"/><text class="minor-label" x="591" y="140">平溪</text>
+        </g>
       </svg>
-      <div class="network-foot"><span>路網為操作示意，用於支援路線層決策；正式版可接 GIS、里程與分區圖層。</span><span>點選路線查看右側決策摘要</span></div>
+      <div class="network-foot"><span>地圖重點是讓使用者一眼看懂北部幹線、東部幹線與各支線的真實相對位置。</span><span>點選任一路線可同步右側摘要與下方案例鏈</span></div>
     </section>
 
     <aside class="panel detail-panel">
-      <div class="panel-h"><div><b>決策摘要</b><small>選定路線後，顯示證據、歷史案例與建議處置</small></div><span class="tag" id="badgeLine">縱貫線</span></div>
+      <div class="panel-h"><div><b>決策摘要</b><small>以選定路線為核心，統整資產、事件與後果</small></div><span class="tag" id="badgeLine">縱貫線</span></div>
       <div class="detail">
         <h2 id="lineTitle">縱貫線</h2>
-        <div class="sub" id="lineSub">目前以路線層級統整邊坡、營運容量與歷史案例</div>
+        <div class="sub" id="lineSub">目前以路線層級統整邊坡、營運容量與已知案例鏈</div>
         <div class="metric-grid">
           <div class="metric red"><span>C高 / 全部邊坡</span><b id="mSlope">344 / 1,839</b></div>
           <div class="metric amber"><span>最高區間利用率</span><b id="mUtil">94.8%</b></div>
@@ -102,17 +128,17 @@
         </div>
 
         <div class="section">
-          <h3>相關案例記憶</h3>
+          <h3>相關事件</h3>
           <div id="relatedCases"></div>
         </div>
 
         <div class="section sop">
           <h3>建議操作順序</h3>
           <ol>
-            <li>確認警訊或事件位置是否落在列管邊坡或相鄰里程。</li>
-            <li>查看此路線過去相似案例與已知處置方式。</li>
-            <li>若屬高利用率區間，優先同步行控與工務進行複核。</li>
-            <li>現場結果以「已確認 / 誤警報 / 已處置 / 待追蹤」回填，保留為下一次案例記憶。</li>
+            <li>確認事件位置是否落在列管邊坡或相鄰站間/里程。</li>
+            <li>從案例鏈讀取相符邊坡資產、受影響列車與歷史處置方式。</li>
+            <li>若瓶頸區間利用率偏高，優先同步工務與行控進行複核。</li>
+            <li>現場結果以「已確認 / 誤警報 / 已處置 / 待追蹤」回填，形成下一次的處置記憶。</li>
           </ol>
         </div>
 
@@ -120,7 +146,7 @@
           <h3>人工回填記憶</h3>
           <div class="form">
             <select id="caseOutcome"><option>已確認</option><option>誤警報</option><option>已處置</option><option>待追蹤</option></select>
-            <textarea id="caseNote" placeholder="填寫現場判讀、照片摘要或處置說明。避免要求人員輸入 AI 文字。"></textarea>
+            <textarea id="caseNote" placeholder="填寫現場判讀、照片摘要或處置說明。這裡保留人工可稽核記錄，不強迫輸入 AI 文字。"></textarea>
             <div class="rowbtn"><button class="btn blue" id="btnSave">儲存回填</button><button class="btn" id="btnOpenAll">查看全部案件</button></div>
           </div>
           <div class="memlist" id="memoryList"></div>
@@ -129,16 +155,62 @@
     </aside>
   </section>
 
+  <section class="block chain-block" id="chainBlock">
+    <div class="block-header">
+      <div>
+        <h3>自動案例鏈</h3>
+        <p>將 TRA-03 邊坡清冊、TRA-04 異常事件、TRA-08/09/10 行車影響與 TRA-11 容量資料串接成一條可追溯決策鏈。</p>
+      </div>
+      <span class="chip">規則式匹配原型</span>
+    </div>
+    <div class="chain-workspace">
+      <div>
+        <div class="chain-flow" id="chainFlow"></div>
+        <div class="chain-hint">點選任一節點，可查看該筆資料的來源、匹配依據、證據欄位與下一步操作。</div>
+      </div>
+      <aside class="chain-detail" id="chainDetail" aria-live="polite">
+        <div class="chain-detail-head">
+          <div>
+            <span class="detail-source" id="detailSource">TRA-03</span>
+            <h4 id="detailTitle">邊坡資產詳情</h4>
+          </div>
+          <span class="detail-status" id="detailStatus">已匹配</span>
+        </div>
+        <div class="detail-record" id="detailRecord">請先選擇有案例鏈的路線。</div>
+        <dl class="detail-list">
+          <div><dt>資料來源</dt><dd id="detailDataset">—</dd></div>
+          <div><dt>匹配依據</dt><dd id="detailMatch">—</dd></div>
+          <div><dt>關鍵證據</dt><dd id="detailEvidence">—</dd></div>
+          <div><dt>資料界線</dt><dd id="detailBoundary">—</dd></div>
+        </dl>
+        <div class="detail-actions">
+          <button type="button" class="btn blue" id="detailPrimary">查看相關證據</button>
+          <button type="button" class="btn" id="detailTrack">建立追蹤回填</button>
+        </div>
+      </aside>
+    </div>
+    <div class="chain-note-grid">
+      <div class="chain-note">
+        <h4>匹配規則</h4>
+        <div id="chainRules"></div>
+      </div>
+      <div class="chain-note">
+        <h4>決策輸出</h4>
+        <div id="chainDecision"></div>
+      </div>
+    </div>
+  </section>
+
   <section class="lower">
     <div class="block">
-      <h3>可直接用來展示的歷史事件</h3>
-      <p>以下案例都來自 TRA-04，部分再以 TRA-08/09/10 補充同日列車延誤與原因紀錄。系統會清楚區分「原始資料」與「系統衍生統計」。</p>
+      <h3>可直接展示的歷史事件</h3>
+      <p>以下事件皆來自 TRA-04，若同日於 TRA-08/09/10 能辨識受影響列車與延誤，則在卡片中額外標出。所有衍生分鐘數都會標明不是原始事件表直接給的欄位。</p>
       <div class="event-grid" id="eventGrid"></div>
     </div>
 
     <div class="block">
       <h3>路線營運曝露</h3>
-      <p>將邊坡風險放回真實營運環境：如果事件發生在高利用率區間，調度餘裕更小、營運影響通常更大。</p>
+      <p>相同風險若發生在不同容量區間，後果會不同。這裡用區間利用率來協助值班人員判斷事件對營運的放大效應。</p>
       <div id="utilBars"></div>
     </div>
   </section>
@@ -156,36 +228,35 @@
               <path d="M0,300 C68,280 110,226 163,192 C227,151 302,158 355,118 C403,82 456,85 640,114 L640,380 L0,380 Z" fill="#dfe8dc"/>
               <path d="M0,300 C68,280 110,226 163,192 C227,151 302,158 355,118 C403,82 456,85 640,114" fill="none" stroke="#c6d4c3" stroke-width="2"/>
               <path d="M16,312 C90,292 131,240 183,208 C246,169 318,174 368,136 C420,98 476,98 624,125" fill="none" stroke="#cad8c7" stroke-width="2"/>
-              <path d="M36,328 C103,308 146,257 198,224 C256,188 327,193 385,154 C430,124 492,118 628,148" fill="none" stroke="#d2dfcf" stroke-width="2"/>
               <polygon points="360,145 448,164 474,246 392,257 333,220" fill="#e6c7b8" stroke="#c98f78" stroke-width="2"/>
               <line x1="55" y1="270" x2="576" y2="270" stroke="#566973" stroke-width="7"/>
               <line x1="112" y1="267" x2="141" y2="267" stroke="#fff" stroke-width="2"/>
               <line x1="204" y1="267" x2="233" y2="267" stroke="#fff" stroke-width="2"/>
               <line x1="294" y1="267" x2="323" y2="267" stroke="#fff" stroke-width="2"/>
               <line x1="384" y1="267" x2="413" y2="267" stroke="#fff" stroke-width="2"/>
-              <line x1="474" y1="267" x2="503" y2="267" stroke="#fff" stroke-width="2"/>
-              <circle cx="365" cy="206" r="7" fill="#c24d4d"/><text x="379" y="210" font-size="12" fill="#485f69">高風險坡面</text>
+              <circle cx="365" cy="206" r="7" fill="#c24d4d"/><text x="379" y="210" font-size="12" fill="#485f69">疑似高風險坡面</text>
               <circle cx="210" cy="270" r="7" fill="#2b6f8e"/><text x="222" y="274" font-size="12" fill="#485f69">鐵道路線</text>
-              <rect x="454" y="36" width="142" height="76" rx="10" fill="#ffffffdd" stroke="#d9e0e4"/>
-              <text x="468" y="58" font-size="13" font-weight="700" fill="#1f2d36">建議顯示內容</text>
-              <text x="468" y="78" font-size="12" fill="#5d717b">• DEM 高程 / 坡度</text>
-              <text x="468" y="95" font-size="12" fill="#5d717b">• 邊坡編號 / 里程</text>
+              <rect x="454" y="36" width="150" height="88" rx="10" fill="#ffffffdd" stroke="#d9e0e4"/>
+              <text x="468" y="58" font-size="13" font-weight="700" fill="#1f2d36">正式版應顯示</text>
+              <text x="468" y="78" font-size="12" fill="#5d717b">• 邊坡編號 / 里程</text>
+              <text x="468" y="96" font-size="12" fill="#5d717b">• DEM / 坡度 / 影像</text>
+              <text x="468" y="114" font-size="12" fill="#5d717b">• 照片 / 巡檢紀錄</text>
             </svg>
           </div>
-          <div class="helper">不再使用玩具感強的隨機 3D 平面，而是改成較接近工程判讀的<strong>坡面—軌道—高風險區塊</strong>視圖。若未來接入 DEM、里程與影像，這個區塊可升級成實際剖面/三維場景。</div>
+          <div class="helper">3D/剖面視圖的角色是補充工務判讀，不應取代主畫面的決策流程。若沒有真實 DEM 與 GIS，就不要把玩具式 3D 當成核心畫面。</div>
         </div>
         <div class="terrain-card">
-          <h3 style="margin-top:0">這個視圖在業界應該做什麼？</h3>
+          <h3 style="margin-top:0">視圖用途</h3>
           <div class="kv">
-            <div class="k">用途</div><div class="v">輔助值班人員理解坡面與軌道相對位置，不作為主要決策畫面。</div>
-            <div class="k">應顯示</div><div class="v">坡面範圍、里程、邊坡編號、最近事件、鄰近設備、距離軌道位置。</div>
-            <div class="k">不應做</div><div class="v">在沒有真實 DEM 與 GIS 的情況下，做過度炫技但無判讀價值的假 3D。</div>
+            <div class="k">用途</div><div class="v">理解坡面、軌道與疑似風險區塊的相對位置。</div>
+            <div class="k">應顯示</div><div class="v">邊坡編號、里程、相鄰站間、照片、事件點、量測結果。</div>
+            <div class="k">不應做</div><div class="v">單純為了「看起來像高科技」而做沒有判讀意義的抽象 3D。</div>
           </div>
           <div class="section" style="margin-top:12px">
             <h3>建議替代方案</h3>
-            <div class="case"><b>方案 A：剖面圖</b><small>最容易落地</small><p>直接顯示坡腳—坡面—軌道—邊溝位置與量測資料，最符合工務人員判讀習慣。</p></div>
-            <div class="case"><b>方案 B：正射底圖 + 邊坡框選</b><small>最接近 GIS 工作流</small><p>在地圖上疊加邊坡範圍、事件點與巡檢照片。</p></div>
-            <div class="case"><b>方案 C：局部 3D</b><small>需真實資料再做</small><p>只在特定高風險邊坡顯示 DEM/點雲，而不是全域性做假 3D。</p></div>
+            <div class="case"><b>方案 A：剖面圖</b><small>最容易落地</small><p>直接呈現坡腳、坡面、軌道與邊溝位置，對工務最實用。</p></div>
+            <div class="case"><b>方案 B：正射底圖 + 邊坡框選</b><small>最接近 GIS</small><p>以底圖疊加邊坡框、事件點、巡檢照片與風險等級。</p></div>
+            <div class="case"><b>方案 C：局部 3D</b><small>有真實資料再做</small><p>針對少數高風險邊坡顯示 DEM / 點雲即可，不需對全台都做假 3D。</p></div>
           </div>
         </div>
       </div>
