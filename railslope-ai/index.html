@@ -81,7 +81,22 @@
         </div>
       </div>
       <div class="viewer-wrap">
-        <div id="viewer3d"></div>
+        <div id="viewer3d">
+    <svg class="viewer-fallback" viewBox="0 0 760 620" aria-label="台灣鐵道路網備援圖">
+      <rect width="760" height="620" fill="#edf3f6"/>
+      <path d="M414 65 C468 78 517 111 545 154 C571 194 586 241 591 296 C597 355 592 416 579 470 C566 526 544 574 514 612 C487 646 449 667 409 676 C370 684 334 672 302 643 C267 611 239 567 217 518 C196 470 182 414 177 357 C171 297 177 242 190 195 C204 145 229 107 267 82 C309 55 363 52 414 65 Z" fill="#dce8df" stroke="#c4d2d9" stroke-width="2"/>
+      <path d="M393 112 C357 148 323 198 297 257 C274 314 263 376 266 447 C270 520 290 575 325 621" fill="none" stroke="#c24d4d" stroke-width="9" stroke-linecap="round"/>
+      <path d="M393 112 C431 119 466 136 494 162 C518 183 534 207 544 235" fill="none" stroke="#c24d4d" stroke-width="8" stroke-linecap="round"/>
+      <path d="M544 235 C558 279 567 327 569 377 C570 408 568 438 564 466" fill="none" stroke="#b9821d" stroke-width="8" stroke-linecap="round"/>
+      <path d="M564 466 C558 520 546 566 518 612" fill="none" stroke="#b9821d" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="393" cy="112" r="6" fill="#fff" stroke="#607985" stroke-width="2"/><text x="365" y="94" font-size="13" fill="#425965">臺北 / 八堵</text>
+      <circle cx="544" cy="235" r="6" fill="#fff" stroke="#607985" stroke-width="2"/><text x="555" y="239" font-size="13" fill="#425965">宜蘭 / 蘇澳</text>
+      <circle cx="569" cy="377" r="6" fill="#fff" stroke="#607985" stroke-width="2"/><text x="580" y="382" font-size="13" fill="#425965">花蓮</text>
+      <circle cx="518" cy="612" r="6" fill="#fff" stroke="#607985" stroke-width="2"/><text x="528" y="616" font-size="13" fill="#425965">臺東</text>
+      <text x="28" y="34" font-size="13" font-weight="700" fill="#2c4551">3D 引擎載入前的備援地圖</text>
+      <text x="28" y="54" font-size="11" fill="#6d8089">若網路阻擋 CDN，仍可先使用此 2D 路網查看資料。</text>
+    </svg>
+  </div>
         <div id="viewerTip" class="viewer-tip">拖曳旋轉、滾輪縮放；點選路線、事件點或邊坡點查看詳細資訊</div>
         <div id="hoverLabel" class="hover-label"></div>
         <aside id="pointInspector" class="point-inspector" hidden>
@@ -265,6 +280,14 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<script type="module" src="./app.js"></script>
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
