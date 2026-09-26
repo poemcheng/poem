@@ -1,3 +1,6 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/controls/OrbitControls.js';
+
 const LINES=[
  {line:"縱貫線",total:1839,b:3,ch:344,cl:491,d:1001,util:94.75,bottle:"八堵–樹林",attention:"high"},
  {line:"宜蘭線",total:910,b:0,ch:101,cl:189,d:620,util:89.43,bottle:"八堵–雙溪",attention:"high"},
@@ -26,6 +29,57 @@ const EVENTS=[
 
 const UTIL=[
  ["縱貫線",94.75],["屏東線",90.43],["宜蘭線",89.43],["臺中線",84.32],["北迴線",77.37],["臺東線",75.56],["內灣線",75.56],["平溪線",61.82],["南迴線",60.00],["集集線",52.94]
+];
+
+const ROUTE_COORDS={
+ '縱貫線': [[396,124],[362,157],[330,212],[305,278],[288,348],[280,420],[284,503],[296,586],[311,655],[325,715]],
+ '屏東線': [[325,715],[338,733],[352,748],[368,762]],
+ '宜蘭線': [[396,124],[431,129],[463,144],[492,167],[520,196],[548,244]],
+ '北迴線': [[548,244],[560,292],[569,342],[575,397],[573,445],[568,493]],
+ '臺東線': [[568,493],[562,547],[552,607],[540,647],[520,677]],
+ '南迴線': [[520,677],[490,710],[430,744],[368,762]],
+ '臺中線': [[293,293],[311,330],[322,372],[328,458]],
+ '內灣線': [[289,293],[330,289],[369,289],[406,297]],
+ '平溪線': [[502,176],[524,155],[551,144],[580,137]],
+ '深澳線': [[492,190],[522,182],[557,181],[590,187]],
+ '集集線': [[278,541],[312,547],[344,563],[373,588]],
+ '花蓮港線': [[568,430],[594,430],[616,435],[636,450]],
+ '成追線': [[306,444],[324,453],[345,463],[360,476]]
+};
+const STATIONS=[
+ {name:'臺北 / 八堵',pos:[396,124]},{name:'新竹',pos:[289,293]},{name:'臺中 / 二水',pos:[278,541]},{name:'高雄',pos:[325,715]},
+ {name:'屏東',pos:[368,762]},{name:'宜蘭 / 蘇澳',pos:[548,244]},{name:'花蓮 / 和平',pos:[575,397]},{name:'臺東',pos:[520,677]}
+];
+const EVENT_POINTS=[
+ {line:'北迴線',pos:[559,322],date:'2026/05/04',type:'地震',title:'宜蘭－和平站間地震',desc:'TRA-04 天然災變事件；同日可於 TRA-08/09/10 辨識天然災變(地震)原因與受影響列車。',source:'TRA-04 + TRA-08/09/10'},
+ {line:'北迴線',pos:[571,430],date:'2026/05/13',type:'地震',title:'新城－鳳林地震事件',desc:'同日行車資料有 34 筆天然災變(地震)原因標記。',source:'TRA-04 + TRA-08/09/10'},
+ {line:'北迴線',pos:[571,382],date:'2025/05/18',type:'土石流/淹水',title:'和仁－崇德豪雨土石流',desc:'西正線水淹超過軌面且路線受損，區間一度雙向不通。',source:'TRA-04'},
+ {line:'宜蘭線',pos:[518,190],date:'2025/09/24',type:'落石',title:'八斗子落石侵入路線',desc:'工務移除落石後恢復正常行駛，事件表記錄 2 列次停駛。',source:'TRA-04'},
+ {line:'內灣線',pos:[374,296],date:'2025/07/09',type:'落石',title:'上員－榮華列車撞石',desc:'1801 次撞石後水箱破裂、引擎故障；限速 25 km/h，處置後解除慢行。',source:'TRA-04'},
+ {line:'臺東線',pos:[551,572],date:'2025/11/11',type:'泥流',title:'萬榮－光復泥流淹及路線',desc:'上下行列車預防性停駛；水利署完成導流後恢復。',source:'TRA-04'},
+ {line:'宜蘭線',pos:[486,170],date:'2022/10/16',type:'豪雨/土石流',title:'宜蘭線多區間豪雨與土石流',desc:'原始影響欄：78 列 / 6,654 分 / 旅客 16,769 人。',source:'TRA-04'}
+];
+const SLOPE_POINTS=[
+ {line:'宜蘭線',pos:[407,132],code:'1040E-001313-001394L',grade:'C',section:'八堵－暖暖',km:'1,313–1,394 m',desc:'位於山崩與地質敏感區；未發現明顯異狀。'},
+ {line:'宜蘭線',pos:[414,139],code:'1040E-001443-001498L',grade:'C',section:'八堵－暖暖',km:'1,443–1,498 m',desc:'位於山崩與地質敏感區；未發現明顯異狀。'},
+ {line:'宜蘭線',pos:[420,145],code:'1040E-001498-001570L',grade:'C',section:'八堵－暖暖',km:'1,498–1,570 m',desc:'位於山崩與地質敏感區；未發現明顯異狀。'},
+ {line:'宜蘭線',pos:[402,136],code:'1040W-000945-000956R',grade:'C',section:'八堵－暖暖',km:'945–956 m',desc:'鋼筋外露銹蝕與洩水孔堵塞。'},
+ {line:'宜蘭線',pos:[405,140],code:'1040W-000956-000980R',grade:'C',section:'八堵－暖暖',km:'956–980 m',desc:'噴凝土坡面混凝土剝落、破損；建議工務修補。'},
+ {line:'宜蘭線',pos:[409,144],code:'1040W-000990-001070R',grade:'C',section:'八堵－暖暖',km:'990–1,070 m',desc:'坡面噴凝土劣化剝落及樹木根系造成破損。'},
+ {line:'宜蘭線',pos:[425,151],code:'1040W-001515-001550R',grade:'C',section:'八堵－暖暖',km:'1,515–1,550 m',desc:'樹根拔起若翻落有影響鐵軌之虞，建議加強調查。'},
+ {line:'北迴線',pos:[554,282],code:'1050E-001492-001688L',grade:'C',section:'蘇澳新－新城',km:'1,492–1,688 m',desc:'北迴線 C 級邊坡候選；無明顯異狀。'},
+ {line:'北迴線',pos:[560,312],code:'1050E-001702-001742L',grade:'C',section:'蘇澳新－新城',km:'1,702–1,742 m',desc:'北迴線 C 級邊坡候選；無明顯異狀。'},
+ {line:'北迴線',pos:[564,342],code:'1050E-001749-001912L',grade:'C',section:'蘇澳新－新城',km:'1,749–1,912 m',desc:'北迴線 C 級邊坡候選。'},
+ {line:'北迴線',pos:[551,260],code:'1050E-000915-001050L',grade:'D',section:'蘇澳新－新城',km:'915–1,050 m',desc:'地錨邊坡；確認分級 D，原地錨分級 B。'}
+];
+const HOT_ZONES=[
+ {line:'縱貫線',pos:[330,220],radius:5.8,intensity:1.0,label:'縱貫線 C高 344 / 利用率 94.75%'},
+ {line:'宜蘭線',pos:[487,183],radius:4.8,intensity:0.88,label:'宜蘭線 C高 101 / 利用率 89.43%'},
+ {line:'平溪線',pos:[553,144],radius:4.0,intensity:0.70,label:'平溪線 C高 103'},
+ {line:'北迴線',pos:[568,355],radius:4.6,intensity:0.76,label:'北迴線 C高 22 / 利用率 77.37%'},
+ {line:'臺中線',pos:[316,385],radius:4.2,intensity:0.63,label:'臺中線 C高 40 / 利用率 84.32%'},
+ {line:'集集線',pos:[340,566],radius:3.8,intensity:0.56,label:'集集線 C高 63'},
+ {line:'內灣線',pos:[380,295],radius:3.5,intensity:0.58,label:'內灣線 C高 37 / 利用率 75.56%'}
 ];
 
 const CASE_CHAINS={
@@ -79,6 +133,14 @@ const CASE_CHAINS={
  }
 };
 
+const viewer = document.querySelector('#viewer3d');
+const hoverLabel = document.querySelector('#hoverLabel');
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const routeMeshes = new Map();
+let renderer, scene, camera, controls, islandGroup, routeGroup, markerGroup, eventGroup, slopeGroup, heatGroup, stationGroup;
+let pulseMarkers=[], eventMeshes=[], slopeMeshes=[], heatMeshes=[];
+
 const STORE_KEY='railslope_enterprise_cases_v2';
 let selected='縱貫線';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -86,9 +148,45 @@ function toast(txt){const t=$('#toast');t.textContent=txt;t.classList.add('show'
 function getCases(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||'[]')}catch{return[]}}
 function saveCaseData(arr){localStorage.setItem(STORE_KEY,JSON.stringify(arr));renderLocalCases()}
 function level(att){return att==='high'?'高關注':att==='mid'?'注意':'一般'}
+function lineInfo(name){return LINES.find(v=>v.line===name)||LINES[0];}
+function routeColor(util){return util>=85?0xc24d4d:util>=70?0xc28b27:0x8aa0ad;}
+function toWorld([x,y],alt=0){const scale=0.12;return new THREE.Vector3((x-380)*scale,alt,(y-410)*scale);}
+function makeHeatTexture(intensity){const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;const ctx=canvas.getContext('2d');const g=ctx.createRadialGradient(128,128,6,128,128,126);const alpha=Math.min(.52,.22+intensity*.3);g.addColorStop(0,`rgba(205,68,57,${alpha})`);g.addColorStop(.38,`rgba(230,126,46,${alpha*.82})`);g.addColorStop(.72,`rgba(244,196,65,${alpha*.38})`);g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(0,0,256,256);const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;return tex;}
+function buildThreeScene(){
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(viewer.clientWidth,viewer.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;viewer.appendChild(renderer.domElement);
+ scene=new THREE.Scene();scene.fog=new THREE.Fog(0xe9f0f4,55,110);
+ camera=new THREE.PerspectiveCamera(38,viewer.clientWidth/viewer.clientHeight,.1,500);camera.position.set(0,15,40);
+ controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.06;controls.target.set(0,2,4);controls.maxPolarAngle=Math.PI*.46;controls.minDistance=22;controls.maxDistance=78;
+ scene.add(new THREE.AmbientLight(0xffffff,1.1));const key=new THREE.DirectionalLight(0xffffff,1.4);key.position.set(18,28,14);scene.add(key);const rim=new THREE.DirectionalLight(0xb7d1df,.8);rim.position.set(-20,10,-22);scene.add(rim);
+ const ground=new THREE.Mesh(new THREE.CircleGeometry(62,80),new THREE.MeshBasicMaterial({color:0xe8eef2,transparent:true,opacity:.85}));ground.rotation.x=-Math.PI/2;ground.position.y=-2.2;scene.add(ground);
+ islandGroup=new THREE.Group();
+ const pts=[[417,75],[472,86],[520,118],[549,163],[577,208],[591,255],[596,313],[602,373],[597,439],[583,498],[570,556],[547,620],[517,679],[488,736],[452,774],[411,795],[371,815],[333,806],[297,773],[260,739],[227,691],[201,633],[178,582],[161,514],[155,447],[149,376],[153,308],[168,246],[184,184],[209,136],[248,101],[295,60],[358,55]].map(([x,y])=>new THREE.Vector2((x-380)*.12,(y-410)*.12));
+ const islandShape=new THREE.Shape(pts);const islandGeo=new THREE.ExtrudeGeometry(islandShape,{depth:3.2,bevelEnabled:true,bevelThickness:.25,bevelSize:.2,bevelSegments:3,steps:1});islandGeo.rotateX(-Math.PI/2);islandGeo.translate(0,-1.6,0);const islandMesh=new THREE.Mesh(islandGeo,[new THREE.MeshStandardMaterial({color:0xcad7df,roughness:.95}),new THREE.MeshStandardMaterial({color:0xe6efea,roughness:.92})]);islandGroup.add(islandMesh);
+ const ridgeCurve=new THREE.CatmullRomCurve3([toWorld([377,120],2.1),toWorld([386,175],2.6),toWorld([389,245],2.9),toWorld([387,330],2.7),toWorld([380,430],2.4),toWorld([366,530],2),toWorld([347,620],1.7),toWorld([320,715],1.2)]);islandGroup.add(new THREE.Mesh(new THREE.TubeGeometry(ridgeCurve,60,1.3,12,false),new THREE.MeshStandardMaterial({color:0xa7bcaa,transparent:true,opacity:.92,roughness:1})));scene.add(islandGroup);
+ routeGroup=new THREE.Group();markerGroup=new THREE.Group();eventGroup=new THREE.Group();slopeGroup=new THREE.Group();heatGroup=new THREE.Group();stationGroup=new THREE.Group();scene.add(routeGroup,markerGroup,eventGroup,slopeGroup,heatGroup,stationGroup);
+ Object.entries(ROUTE_COORDS).forEach(([name,routePts])=>{const info=lineInfo(name);const color=routeColor(info.util);const curve=new THREE.CatmullRomCurve3(routePts.map((p,i)=>toWorld(p,.22+(i/routePts.length)*.04)));const branch=['內灣線','平溪線','深澳線','集集線','花蓮港線','成追線'].includes(name);const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(routePts.length*8,32),branch?.22:.34,12,false),new THREE.MeshStandardMaterial({color,emissive:0x14232a,emissiveIntensity:.12,roughness:.45,metalness:.15}));mesh.userData={line:name,type:'route'};routeGroup.add(mesh);routeMeshes.set(name,mesh);const last=toWorld(routePts[routePts.length-1],.6);const h=Math.max(info.util/18,1.4);const cap=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,h,12),new THREE.MeshStandardMaterial({color,emissive:0x111111,emissiveIntensity:.08,transparent:true,opacity:.92}));cap.position.copy(last);cap.position.y=h/2+.2;cap.userData={line:name,type:'pillar'};markerGroup.add(cap);});
+ STATIONS.forEach(s=>{const mesh=new THREE.Mesh(new THREE.SphereGeometry(.38,18,18),new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x536d79,emissiveIntensity:.35,roughness:.3}));mesh.position.copy(toWorld(s.pos,.62));mesh.userData={type:'station',name:s.name};stationGroup.add(mesh);});
+ HOT_ZONES.forEach(z=>{const mesh=new THREE.Mesh(new THREE.PlaneGeometry(z.radius*2,z.radius*2),new THREE.MeshBasicMaterial({map:makeHeatTexture(z.intensity),transparent:true,depthWrite:false,side:THREE.DoubleSide,opacity:.9}));mesh.rotation.x=-Math.PI/2;mesh.position.copy(toWorld(z.pos,.12));mesh.userData={type:'heat',line:z.line,label:z.label};heatGroup.add(mesh);heatMeshes.push(mesh);});
+ SLOPE_POINTS.forEach(s=>{const color=s.grade==='C'?0xe2a32f:0x7390a0;const mesh=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.78,10),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.18,roughness:.35,transparent:true}));mesh.position.copy(toWorld(s.pos,.72));mesh.userData={type:'slope',...s};slopeGroup.add(mesh);slopeMeshes.push(mesh);});
+ EVENT_POINTS.forEach(e=>{const color=/地震/.test(e.type)?0x9f5aa8:/落石|土石流|泥流/.test(e.type)?0xc24d4d:0xd58c30;const mesh=new THREE.Mesh(new THREE.ConeGeometry(.34,.92,5),new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.35,roughness:.3,transparent:true}));mesh.position.copy(toWorld(e.pos,1.05));mesh.rotation.y=Math.PI/4;mesh.userData={type:'event',...e};eventGroup.add(mesh);eventMeshes.push(mesh);});
+ renderer.domElement.addEventListener('pointermove',onPointerMove);renderer.domElement.addEventListener('click',onPointerClick);window.addEventListener('resize',onResize);
+}
+function animate(){requestAnimationFrame(animate);controls.update();const t=performance.now()*.001;eventMeshes.forEach((m,i)=>{if(m.userData.line===selected){const s=1+Math.sin(t*2.2+i)*.08;m.scale.setScalar(s);}});renderer.render(scene,camera);}
+function onResize(){if(!renderer)return;renderer.setSize(viewer.clientWidth,viewer.clientHeight);camera.aspect=viewer.clientWidth/viewer.clientHeight;camera.updateProjectionMatrix();}
+function screenPointer(e){const r=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1;}
+function pickObject(e){screenPointer(e);raycaster.setFromCamera(pointer,camera);const objs=[...routeGroup.children,...markerGroup.children,...stationGroup.children,...eventGroup.children,...slopeGroup.children];const hits=raycaster.intersectObjects(objs,false);return hits.length?hits[0]:null;}
+function pointLabel(d){if(d.type==='event')return `EVENT｜${d.date}｜${d.title}`;if(d.type==='slope')return `SLOPE｜${d.code}｜${d.grade}級`;if(d.type==='station')return d.name;return d.line||'';}
+function onPointerMove(e){const hit=pickObject(e);if(!hit){hoverLabel.style.display='none';renderer.domElement.style.cursor='grab';return;}const d=hit.object.userData||{};const label=pointLabel(d);if(!label){hoverLabel.style.display='none';return;}renderer.domElement.style.cursor='pointer';const r=renderer.domElement.getBoundingClientRect();hoverLabel.style.display='block';hoverLabel.textContent=label;hoverLabel.style.left=`${e.clientX-r.left}px`;hoverLabel.style.top=`${e.clientY-r.top}px`;}
+function openPointInspector(d){const panel=document.querySelector('#pointInspector');panel.hidden=false;if(d.type==='event'){document.querySelector('#pointType').textContent='EVENT · TRA-04';document.querySelector('#pointTitle').textContent=d.title;document.querySelector('#pointMeta').textContent=`${d.date}｜${d.line}｜${d.type}`;document.querySelector('#pointDescription').textContent=d.desc;document.querySelector('#pointSource').textContent=`來源：${d.source}；位置為事件地名沿路線之展示映射。`;}else if(d.type==='slope'){document.querySelector('#pointType').textContent='SLOPE · TRA-03';document.querySelector('#pointTitle').textContent=d.code;document.querySelector('#pointMeta').textContent=`${d.line}｜${d.section}｜${d.km}｜確認分級 ${d.grade}`;document.querySelector('#pointDescription').textContent=d.desc;document.querySelector('#pointSource').textContent='來源：TRA-03 原始邊坡清冊；此 3D 點位依站間 / 里程沿路線做展示映射，非 GPS 實測座標。';}else if(d.type==='station'){document.querySelector('#pointType').textContent='STATION';document.querySelector('#pointTitle').textContent=d.name;document.querySelector('#pointMeta').textContent='代表站點';document.querySelector('#pointDescription').textContent='用於輔助辨識 3D 台灣路網位置。';document.querySelector('#pointSource').textContent='站點位置為示意相對位置。';}}
+function onPointerClick(e){const hit=pickObject(e);if(!hit)return;const d=hit.object.userData||{};if(d.line)selectLine(d.line);if(['event','slope','station'].includes(d.type))openPointInspector(d);}
+function focusCamera(position,target=new THREE.Vector3(0,2,4)){camera.position.copy(position);controls.target.copy(target);controls.update();}
+function setViewLabel(text){document.querySelector('#viewMode').textContent=text;}
+function highlight3D(line){routeMeshes.forEach((mesh,name)=>{const base=routeColor(lineInfo(name).util);mesh.material.color.setHex(base);mesh.material.emissive.setHex(name===line?0x345f73:0x14232a);mesh.material.emissiveIntensity=name===line?.7:.12;mesh.scale.setScalar(name===line?1.03:1);});markerGroup.children.forEach(obj=>{if(obj.userData.type==='pillar')obj.material.emissiveIntensity=obj.userData.line===line?.5:.08;});eventMeshes.forEach(m=>{m.material.opacity=m.userData.line===line?1:.28;m.scale.setScalar(m.userData.line===line?1.18:.88);});slopeMeshes.forEach(m=>{m.material.opacity=m.userData.line===line?1:.22;m.scale.setScalar(m.userData.line===line?1.18:.86);});heatMeshes.forEach(m=>m.material.opacity=m.userData.line===line?1:.28);}
+function updateGeoSummary(x){document.querySelector('#geoLineName').textContent=x.line;document.querySelector('#geoBottle').textContent=x.bottle;document.querySelector('#geoCaseStatus').textContent=CASE_CHAINS[x.line]?'已建立案例鏈':'尚無完整案例鏈';}
+
 function renderList(){const data=[...LINES].sort((a,b)=>(b.ch*1.2+b.util)-(a.ch*1.2+a.util));$('#lineList').innerHTML=data.map(x=>`<button class="row ${x.line===selected?'active':''}" data-line="${x.line}"><div class="top"><b>${x.line}</b><span class="level ${x.attention}">${level(x.attention)}</span></div><div class="meta"><span>邊坡 ${x.total.toLocaleString()}</span><span>C高 ${x.ch}</span><span>最高利用率 ${x.util.toFixed(1)}%</span></div></button>`).join('');$$('#lineList .row').forEach(b=>b.onclick=()=>selectLine(b.dataset.line));}
 function routeSelect(line){$$('[data-line]').forEach(el=>el.classList.toggle('selected',el.dataset.line===line));}
-function selectLine(line){selected=line;renderList();routeSelect(line);const x=LINES.find(v=>v.line===line)||LINES[0];$('#badgeLine').textContent=x.line;$('#lineTitle').textContent=x.line;$('#mSlope').textContent=`${x.ch} / ${x.total.toLocaleString()}`;$('#mUtil').textContent=`${x.util.toFixed(1)}%`;$('#mBottle').textContent=x.bottle;$('#txtPhysical').textContent = x.ch?`此線共有 ${x.total.toLocaleString()} 處邊坡，其中 C高 ${x.ch} 處；畫面保留臺鐵官方分級，並進一步將其與事件與列車後果串接。`:`目前此線 C高 數量較低，但仍須關注單點風險與相鄰設備。`;$('#txtOps').textContent = x.util>=85?`此線最高區間利用率為 ${x.util.toFixed(1)}%，若發生阻斷或慢行，調度餘裕很小，營運影響可能快速擴散。`:x.util>=70?`此線最高區間利用率為 ${x.util.toFixed(1)}%，屬中高營運曝露，需同時考慮資產風險與營運承載。`:`此線最高區間利用率為 ${x.util.toFixed(1)}%，相較高利用率幹線，營運影響擴散相對有限。`;$('#txtDecision').textContent='不直接給一個黑箱風險分數，而是讓使用者沿著「邊坡→事件→列車→延誤→容量→處置」案例鏈做判讀。';const rel=EVENTS.filter(e=>e.line===line).slice(0,3);$('#relatedCases').innerHTML=rel.length?rel.map(e=>`<div class="case ${/土石流|落石|泥流/.test(e.type)?'hazard':''}"><b>${e.date}｜${e.title}</b><small>${e.place}｜${e.type}</small><p>${e.desc}</p></div>`).join(''):'<div class="case"><b>目前未綁定代表事件</b><p>正式版可依里程、站間與事件類型，自動回叫對應的 TRA-04 事件與 TRA-08/09/10 行車後果。</p></div>';renderChain();renderLocalCases();}
+function selectLine(line){selected=line;renderList();routeSelect(line);if(routeMeshes.size)highlight3D(line);const x=LINES.find(v=>v.line===line)||LINES[0];$('#badgeLine').textContent=x.line;$('#lineTitle').textContent=x.line;$('#mSlope').textContent=`${x.ch} / ${x.total.toLocaleString()}`;$('#mUtil').textContent=`${x.util.toFixed(1)}%`;$('#mBottle').textContent=x.bottle;$('#txtPhysical').textContent = x.ch?`此線共有 ${x.total.toLocaleString()} 處邊坡，其中 C高 ${x.ch} 處；畫面保留臺鐵官方分級，並進一步將其與事件與列車後果串接。`:`目前此線 C高 數量較低，但仍須關注單點風險與相鄰設備。`;$('#txtOps').textContent = x.util>=85?`此線最高區間利用率為 ${x.util.toFixed(1)}%，若發生阻斷或慢行，調度餘裕很小，營運影響可能快速擴散。`:x.util>=70?`此線最高區間利用率為 ${x.util.toFixed(1)}%，屬中高營運曝露，需同時考慮資產風險與營運承載。`:`此線最高區間利用率為 ${x.util.toFixed(1)}%，相較高利用率幹線，營運影響擴散相對有限。`;$('#txtDecision').textContent='不直接給一個黑箱風險分數，而是讓使用者沿著「邊坡→事件→列車→延誤→容量→處置」案例鏈做判讀。';const rel=EVENTS.filter(e=>e.line===line).slice(0,3);$('#relatedCases').innerHTML=rel.length?rel.map(e=>`<div class="case ${/土石流|落石|泥流/.test(e.type)?'hazard':''}"><b>${e.date}｜${e.title}</b><small>${e.place}｜${e.type}</small><p>${e.desc}</p></div>`).join(''):'<div class="case"><b>目前未綁定代表事件</b><p>正式版可依里程、站間與事件類型，自動回叫對應的 TRA-04 事件與 TRA-08/09/10 行車後果。</p></div>';updateGeoSummary(x);renderChain();renderLocalCases();}
 function chainDetails(c){
  return {
   asset:{source:"TRA-03",title:"邊坡資產詳情",record:c.asset,dataset:"TRA-03 邊坡分級與巡檢指標數據",match:"以線別、站間與里程建立候選邊坡關聯。",evidence:c.assetDesc,boundary:"目前案例鏈以候選邊坡群為主；若事件未提供精確里程，不宣稱一對一命中。",primary:"查看路線資產",target:"top"},
@@ -132,7 +230,7 @@ $('#btnSave').onclick=()=>{const arr=getCases();arr.unshift({time:new Date().toI
 $('#btnOpenAll').onclick=()=>{const arr=getCases();$('#allCasesBody').innerHTML=arr.length?arr.map(c=>`<div class="memory"><b>${new Date(c.time).toLocaleString('zh-TW')}｜${c.line}｜${c.outcome}</b><p>${c.note||'無補充說明'}</p></div>`).join(''):'<p style="color:#6e818d">尚無人工回填案件。</p>';$('#allCasesModal').classList.add('open')};
 $('#btnCloseAll').onclick=()=>$('#allCasesModal').classList.remove('open');
 $('#btnTerrain').onclick=()=>$('#terrainModal').classList.add('open'); $('#btnCloseTerrain').onclick=()=>$('#terrainModal').classList.remove('open');
-$('#btnDemo').onclick=()=>{selectLine('北迴線');document.querySelector('#chainBlock').scrollIntoView({behavior:'smooth',block:'start'});toast('已切換到北迴線案例鏈')};
+$('#btnDemo').onclick=()=>{selectLine('北迴線');focusCamera(new THREE.Vector3(18,13,34),new THREE.Vector3(10,1,10));setViewLabel('3D 北迴線展示');document.querySelector('#chainBlock').scrollIntoView({behavior:'smooth',block:'start'});toast('已切換到北迴線 3D 展示與案例鏈')};
 $('#btnReset').onclick=()=>selectLine('縱貫線');
 $('#btnShowChain').onclick=()=>document.querySelector('#chainBlock').scrollIntoView({behavior:'smooth',block:'start'});
 $('#btnShowOps').onclick=()=>document.querySelectorAll('.block')[2]?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -140,4 +238,15 @@ $$('[data-line]').forEach(el=>el.onclick=()=>selectLine(el.dataset.line));
 
 $('#detailPrimary').onclick=()=>{const t=$('#detailPrimary').dataset.target;if(t==='events'){document.querySelector('#eventGrid').scrollIntoView({behavior:'smooth',block:'center'});}else if(t==='ops'){document.querySelector('#utilBars').scrollIntoView({behavior:'smooth',block:'center'});}else if(t==='track'){document.querySelector('#caseNote').focus();document.querySelector('.detail-panel').scrollIntoView({behavior:'smooth',block:'start'});}else{document.querySelector('.layout').scrollIntoView({behavior:'smooth',block:'start'});}};
 $('#detailTrack').onclick=()=>{document.querySelector('#caseNote').focus();document.querySelector('.detail-panel').scrollIntoView({behavior:'smooth',block:'start'});toast('請填寫人工巡檢或處置回填');};
-renderList(); renderEvents(); renderUtil(); selectLine('縱貫線');
+buildThreeScene(); renderList(); renderEvents(); renderUtil(); selectLine('縱貫線'); animate();
+document.querySelector('#btnTopView').onclick=()=>{focusCamera(new THREE.Vector3(0,52,8),new THREE.Vector3(0,1,6));setViewLabel('3D 俯視');};
+document.querySelector('#btnPerspective').onclick=()=>{focusCamera(new THREE.Vector3(0,15,40),new THREE.Vector3(0,2,4));setViewLabel('3D 斜視');};
+document.querySelector('#btnResetCamera').onclick=()=>{focusCamera(new THREE.Vector3(0,15,40),new THREE.Vector3(0,2,4));setViewLabel('3D 斜視');};
+document.querySelector('#btnFocusNorth').onclick=()=>{focusCamera(new THREE.Vector3(6,11,18),new THREE.Vector3(2,2,-20));setViewLabel('聚焦北部');};
+document.querySelector('#btnFocusEast').onclick=()=>{focusCamera(new THREE.Vector3(24,10,20),new THREE.Vector3(15,1,12));setViewLabel('聚焦東部');};
+document.querySelector('#pointInspectorClose').onclick=()=>{document.querySelector('#pointInspector').hidden=true;};
+document.querySelector('#layerRoutes').onchange=e=>{routeGroup.visible=e.target.checked;markerGroup.visible=e.target.checked;};
+document.querySelector('#layerEvents').onchange=e=>{eventGroup.visible=e.target.checked;};
+document.querySelector('#layerSlopes').onchange=e=>{slopeGroup.visible=e.target.checked;};
+document.querySelector('#layerHeat').onchange=e=>{heatGroup.visible=e.target.checked;};
+document.querySelector('#layerStations').onchange=e=>{stationGroup.visible=e.target.checked;};
