@@ -3,7 +3,7 @@ from pathlib import Path
 import io, json, math
 import numpy as np
 import requests
-from PIL import Image
+from PIL import Image, ImageDraw
 import rasterio
 from rasterio.warp import reproject, Resampling
 from rasterio.transform import from_bounds
@@ -142,6 +142,7 @@ meta = {
 (OUT/"realmap_meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
 
 print("Downloading real railway geometry...")
+rail_data = {}
 for name in ("track_lines.geojson","track_stations.geojson"):
     url=f"https://raw.githubusercontent.com/siriushsu/taiwan-rail-live/main/data/{name}"
     data=get(url,120).json()
@@ -152,8 +153,42 @@ for name in ("track_lines.geojson","track_stations.geojson"):
             features.append(f)
     data["features"]=features
     data["source_repo"]="siriushsu/taiwan-rail-live"
+    rail_data[name]=data
     (OUT/("tra_"+name)).write_text(json.dumps(data,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
     print(name, len(features),"TRA features")
+
+print("Rendering real TRA railway onto fallback relief map...")
+rail_img = Image.fromarray(relief).convert("RGB")
+draw = ImageDraw.Draw(rail_img)
+R = 6378137.0
+def ll_to_pixel(lon, lat):
+    mx = R * math.radians(lon)
+    my = R * math.log(math.tan(math.pi/4 + math.radians(lat)/2))
+    px = (mx - MINX)/(MAXX-MINX) * WIDTH
+    py = (MAXY - my)/(MAXY-MINY) * HEIGHT
+    return (px,py)
+for feat in rail_data["track_lines.geojson"]["features"]:
+    geom=feat.get("geometry",{})
+    typ=geom.get("type")
+    coords=geom.get("coordinates",[])
+    parts = coords if typ=="MultiLineString" else [coords] if typ=="LineString" else []
+    for part in parts:
+        pts=[]
+        for lon,lat,*_ in part:
+            x,y=ll_to_pixel(lon,lat)
+            if -20<=x<=WIDTH+20 and -20<=y<=HEIGHT+20:
+                pts.append((x,y))
+        if len(pts)>1:
+            draw.line(pts, fill=(155,45,45), width=3)
+for feat in rail_data["track_stations.geojson"]["features"]:
+    geom=feat.get("geometry",{})
+    if geom.get("type")=="Point":
+        lon,lat,*_=geom.get("coordinates",[])
+        x,y=ll_to_pixel(lon,lat)
+        if 0<=x<WIDTH and 0<=y<HEIGHT:
+            r=2.4
+            draw.ellipse((x-r,y-r,x+r,y+r), fill=(255,255,255), outline=(38,73,88), width=1)
+rail_img.save(OUT/"taiwan_basemap_rail.png", optimize=True)
 
 
 print("Downloading local Three.js runtime...")
