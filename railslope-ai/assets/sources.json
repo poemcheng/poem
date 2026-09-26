@@ -1,0 +1,15 @@
+{
+  "basemap": {
+    "name": "NLSC 臺灣通用電子地圖(套疊等高線)OpenData",
+    "url": "https://wmts.nlsc.gov.tw/wmts",
+    "layer": "EMAP5_OPENDATA"
+  },
+  "terrain": {
+    "name": "SRTM-3 DEM of Taiwan",
+    "url": "https://github.com/TopoToolbox/DEMs/blob/main/taiwan.tif"
+  },
+  "railway": {
+    "name": "taiwan-rail-live track_lines.geojson (derived from TRA/OSM project data)",
+    "url": "https://github.com/siriushsu/taiwan-rail-live"
+  }
+}

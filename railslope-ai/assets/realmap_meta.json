@@ -1,0 +1,44 @@
+{
+  "projection": "EPSG:3857",
+  "tile_zoom": 8,
+  "tile_range": {
+    "x": [
+      213,
+      214
+    ],
+    "y": [
+      109,
+      112
+    ]
+  },
+  "pixel_size": [
+    512,
+    1024
+  ],
+  "mercator_bounds": [
+    13306157.883883484,
+    2348145.5089206137,
+    13619243.95173956,
+    2974317.644632779
+  ],
+  "wgs84_bounds": [
+    119.53125000000001,
+    20.632784250388013,
+    122.34374999999996,
+    25.799891182088334
+  ],
+  "dem_source": "TopoToolbox/DEMs taiwan.tif (SRTM-3, ~90m)",
+  "dem_max_m": 3751.858642578125,
+  "height_encoding": "gray8 = clamp(elevation_m / 4000 * 255)",
+  "basemap_source": "NLSC EMAP5_OPENDATA; OSM fallback per tile",
+  "tile_sources": [
+    "https://wmts.nlsc.gov.tw/wmts/EMAP5_OPENDATA/default/GoogleMapsCompatible/8/109/213",
+    "https://wmts.nlsc.gov.tw/wmts/EMAP5_OPENDATA/default/GoogleMapsCompatible/8/109/214",
+    "https://wmts.nlsc.gov.tw/wmts/EMAP5_OPENDATA/default/GoogleMapsCompatible/8/110/213",
+    "https://wmts.nlsc.gov.tw/wmts/EMAP5_OPENDATA/default/GoogleMapsCompatible/8/110/214",
+    "https://wmts.nlsc.gov.tw/wmts/EMAP5_OPENDATA/default/GoogleMapsCompatible/8/111/213",
+    "https://wmts.nlsc.gov.tw/wmts/EMAP5_OPENDATA/default/GoogleMapsCompatible/8/111/214",
+    "https://wmts.nlsc.gov.tw/wmts/EMAP5_OPENDATA/default/GoogleMapsCompatible/8/112/213",
+    "https://wmts.nlsc.gov.tw/wmts/EMAP5_OPENDATA/default/GoogleMapsCompatible/8/112/214"
+  ]
+}
