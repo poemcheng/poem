@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>RailSlope｜鐵道邊坡與營運韌性決策平台</title>
 <meta name="description" content="RailSlope industry-style UI prototype for TRA data." />
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.11.2/dist/maplibre-gl.css" />
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -19,7 +20,7 @@
   </nav>
   <div class="meta"><b>競賽資料驗證環境</b><br>TRA-03 / 04 / 08 / 09 / 10 / 11 串接原型</div>
 </header>
-<div class="notice">本版將核心工作流調整為：<strong>邊坡資產 → 歷史事件 → 受影響列車 → 延誤後果 → 路線容量 → 處置記憶</strong>，並以較接近真實地理位置的臺鐵路網示意呈現。</div>
+<div class="notice">本版改用<strong>國土測繪中心 NLSC 真實臺灣底圖 + 真實等高線圖磚 + 3D DEM 地形 + OpenRailwayMap 真實鐵路軌道</strong>。不再使用手繪臺灣輪廓或假鐵路線。</div>
 
 <main class="page">
   <div class="page-title">
@@ -55,25 +56,24 @@
     <section class="panel scene-panel">
       <div class="panel-h scene-head">
         <div>
-          <b>Three.js 3D 台灣地圖與鐵道路線</b>
-          <small>可旋轉 / 縮放 / 點選；事件點、邊坡點與熱區可獨立開關</small>
+          <b>真實臺灣地圖 × 真實鐵路 × 3D 地形</b>
+          <small>NLSC 官方電子地圖與等高線、OpenRailwayMap 鐵路軌道、DEM 地形高程</small>
         </div>
         <div class="scene-legend">
-          <span><i class="dot high"></i> 高利用率 ≥85%</span>
-          <span><i class="dot mid"></i> 中高利用率 70–84%</span>
-          <span><i class="dot low"></i> 其他路線</span>
           <span><i class="dot event"></i> 歷史事件</span>
-          <span><i class="dot slope"></i> 邊坡點</span>
+          <span><i class="dot slope"></i> TRA-03 邊坡</span>
+          <span><i class="dot heat"></i> 風險熱區</span>
         </div>
       </div>
       <div class="scene-toolbar">
-        <button class="btn slim" id="btnReset">回到縱貫線</button>
-        <button class="btn slim" id="btnFocusNorth">看北部</button>
-        <button class="btn slim" id="btnFocusEast">看東部</button>
+        <button class="btn slim" id="btnReset">全臺</button>
+        <button class="btn slim" id="btnTopView">2D 地圖</button>
+        <button class="btn slim" id="btnPerspective">3D 地形</button>
+        <button class="btn slim" id="btnFocusNorth">北部</button>
+        <button class="btn slim" id="btnFocusEast">東部</button>
         <button class="btn slim" id="btnShowChain">查看案例鏈</button>
-        <button class="btn slim" id="btnShowOps">查看營運影響</button>
-        <div class="layer-controls" aria-label="3D 圖層控制">
-          <label><input type="checkbox" id="layerRoutes" checked> 路線</label>
+        <div class="layer-controls" aria-label="地圖圖層控制">
+          <label><input type="checkbox" id="layerRoutes" checked> 真實鐵路</label>
           <label><input type="checkbox" id="layerEvents" checked> 事件點</label>
           <label><input type="checkbox" id="layerSlopes" checked> 邊坡點</label>
           <label><input type="checkbox" id="layerHeat" checked> 熱區</label>
@@ -81,24 +81,8 @@
         </div>
       </div>
       <div class="viewer-wrap">
-        <div id="viewer3d">
-    <svg class="viewer-fallback" viewBox="0 0 760 620" aria-label="台灣鐵道路網備援圖">
-      <rect width="760" height="620" fill="#edf3f6"/>
-      <path d="M414 65 C468 78 517 111 545 154 C571 194 586 241 591 296 C597 355 592 416 579 470 C566 526 544 574 514 612 C487 646 449 667 409 676 C370 684 334 672 302 643 C267 611 239 567 217 518 C196 470 182 414 177 357 C171 297 177 242 190 195 C204 145 229 107 267 82 C309 55 363 52 414 65 Z" fill="#dce8df" stroke="#c4d2d9" stroke-width="2"/>
-      <path d="M393 112 C357 148 323 198 297 257 C274 314 263 376 266 447 C270 520 290 575 325 621" fill="none" stroke="#c24d4d" stroke-width="9" stroke-linecap="round"/>
-      <path d="M393 112 C431 119 466 136 494 162 C518 183 534 207 544 235" fill="none" stroke="#c24d4d" stroke-width="8" stroke-linecap="round"/>
-      <path d="M544 235 C558 279 567 327 569 377 C570 408 568 438 564 466" fill="none" stroke="#b9821d" stroke-width="8" stroke-linecap="round"/>
-      <path d="M564 466 C558 520 546 566 518 612" fill="none" stroke="#b9821d" stroke-width="8" stroke-linecap="round"/>
-      <circle cx="393" cy="112" r="6" fill="#fff" stroke="#607985" stroke-width="2"/><text x="365" y="94" font-size="13" fill="#425965">臺北 / 八堵</text>
-      <circle cx="544" cy="235" r="6" fill="#fff" stroke="#607985" stroke-width="2"/><text x="555" y="239" font-size="13" fill="#425965">宜蘭 / 蘇澳</text>
-      <circle cx="569" cy="377" r="6" fill="#fff" stroke="#607985" stroke-width="2"/><text x="580" y="382" font-size="13" fill="#425965">花蓮</text>
-      <circle cx="518" cy="612" r="6" fill="#fff" stroke="#607985" stroke-width="2"/><text x="528" y="616" font-size="13" fill="#425965">臺東</text>
-      <text x="28" y="34" font-size="13" font-weight="700" fill="#2c4551">3D 引擎載入前的備援地圖</text>
-      <text x="28" y="54" font-size="11" fill="#6d8089">若網路阻擋 CDN，仍可先使用此 2D 路網查看資料。</text>
-    </svg>
-  </div>
-        <div id="viewerTip" class="viewer-tip">拖曳旋轉、滾輪縮放；點選路線、事件點或邊坡點查看詳細資訊</div>
-        <div id="hoverLabel" class="hover-label"></div>
+        <div id="viewer3d"></div>
+        <div id="viewerTip" class="viewer-tip">底圖、鐵路與地形均為真實地理資料；拖曳旋轉、滾輪縮放，點事件/邊坡查看證據。</div>
         <aside id="pointInspector" class="point-inspector" hidden>
           <button type="button" id="pointInspectorClose" class="point-close" aria-label="關閉點位詳情">×</button>
           <span id="pointType" class="point-type">EVENT</span>
@@ -109,10 +93,13 @@
         </aside>
       </div>
       <div class="viewer-foot">
-        <div class="mini-card"><span>目前視角</span><b id="viewMode">3D 斜視</b></div>
+        <div class="mini-card"><span>目前視角</span><b id="viewMode">3D 地形</b></div>
         <div class="mini-card"><span>選定路線</span><b id="geoLineName">縱貫線</b></div>
         <div class="mini-card"><span>瓶頸區間</span><b id="geoBottle">八堵–樹林</b></div>
-        <div class="mini-card"><span>案例鏈狀態</span><b id="geoCaseStatus">尚無完整案例鏈</b></div>
+        <div class="mini-card"><span>資料來源</span><b>NLSC + OSM/ORM + DEM</b></div>
+      </div>
+      <div class="map-source-note">
+        臺灣底圖/等高線：內政部國土測繪中心 NLSC WMTS；鐵路：OpenRailwayMap / OpenStreetMap；3D 地形：DEM 高程圖磚。TRA 事件點若原始資料僅提供站間/地名，畫面以站間中心或鄰近站點定位並標示為近似位置。
       </div>
     </section>
 
@@ -280,14 +267,6 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/"
-    }
-  }
-  </script>
-  <script type="module" src="./app.js"></script>
+<script type="module" src="./app.js"></script>
 </body>
 </html>
