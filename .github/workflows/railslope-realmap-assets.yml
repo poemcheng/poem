@@ -1,0 +1,38 @@
+name: Build real Taiwan map assets
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+    paths:
+      - "railslope-ai/tools/build_real_map_assets.py"
+      - ".github/workflows/railslope-realmap-assets.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install GIS dependencies
+        run: python -m pip install --upgrade pip && pip install numpy pillow requests rasterio
+      - name: Build real map, DEM and TRA railway assets
+        run: python railslope-ai/tools/build_real_map_assets.py
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add railslope-ai/assets/
+          if git diff --cached --quiet; then
+            echo "No asset changes"
+          else
+            git commit -m "Build real Taiwan GIS and terrain assets"
+            git push
+          fi
