@@ -155,6 +155,18 @@ for name in ("track_lines.geojson","track_stations.geojson"):
     (OUT/("tra_"+name)).write_text(json.dumps(data,ensure_ascii=False,separators=(",",":")),encoding="utf-8")
     print(name, len(features),"TRA features")
 
+
+print("Downloading local Three.js runtime...")
+vendor = ROOT / "vendor"
+vendor.mkdir(parents=True, exist_ok=True)
+three_urls = {
+    "three.module.js":"https://raw.githubusercontent.com/mrdoob/three.js/master/build/three.module.js",
+    "OrbitControls.js":"https://raw.githubusercontent.com/mrdoob/three.js/master/examples/jsm/controls/OrbitControls.js",
+}
+for name,url in three_urls.items():
+    r=get(url,120)
+    (vendor/name).write_bytes(r.content)
+
 sources={
     "basemap":{"name":"NLSC 臺灣通用電子地圖(套疊等高線)OpenData","url":"https://wmts.nlsc.gov.tw/wmts","layer":"EMAP5_OPENDATA"},
     "terrain":{"name":"SRTM-3 DEM of Taiwan","url":"https://github.com/TopoToolbox/DEMs/blob/main/taiwan.tif"},
