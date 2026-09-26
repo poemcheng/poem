@@ -79,7 +79,7 @@ for ty in range(Y0,Y1+1):
 
 dem_path = TMP / "taiwan.tif"
 print("Downloading SRTM DEM...")
-download("https://raw.githubusercontent.com/TopoToolbox/DEMs/main/taiwan.tif", dem_path)
+download("https://raw.githubusercontent.com/TopoToolbox/DEMs/master/taiwan.tif", dem_path)
 
 print("Reprojecting DEM to Web Mercator tile grid...")
 target = np.zeros((HEIGHT,WIDTH), dtype=np.float32)
