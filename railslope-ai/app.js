@@ -1,5 +1,5 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const LINES=[
  {line:"縱貫線",total:1839,b:3,ch:344,cl:491,d:1001,util:94.75,bottle:"八堵–樹林",attention:"high"},
@@ -153,6 +153,7 @@ function routeColor(util){return util>=85?0xc24d4d:util>=70?0xc28b27:0x8aa0ad;}
 function toWorld([x,y],alt=0){const scale=0.12;return new THREE.Vector3((x-380)*scale,alt,(y-410)*scale);}
 function makeHeatTexture(intensity){const canvas=document.createElement('canvas');canvas.width=256;canvas.height=256;const ctx=canvas.getContext('2d');const g=ctx.createRadialGradient(128,128,6,128,128,126);const alpha=Math.min(.52,.22+intensity*.3);g.addColorStop(0,`rgba(205,68,57,${alpha})`);g.addColorStop(.38,`rgba(230,126,46,${alpha*.82})`);g.addColorStop(.72,`rgba(244,196,65,${alpha*.38})`);g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.fillRect(0,0,256,256);const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;return tex;}
 function buildThreeScene(){
+ viewer.innerHTML='';
  renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(viewer.clientWidth,viewer.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;viewer.appendChild(renderer.domElement);
  scene=new THREE.Scene();scene.fog=new THREE.Fog(0xe9f0f4,55,110);
  camera=new THREE.PerspectiveCamera(38,viewer.clientWidth/viewer.clientHeight,.1,500);camera.position.set(0,15,40);
@@ -238,7 +239,19 @@ $$('[data-line]').forEach(el=>el.onclick=()=>selectLine(el.dataset.line));
 
 $('#detailPrimary').onclick=()=>{const t=$('#detailPrimary').dataset.target;if(t==='events'){document.querySelector('#eventGrid').scrollIntoView({behavior:'smooth',block:'center'});}else if(t==='ops'){document.querySelector('#utilBars').scrollIntoView({behavior:'smooth',block:'center'});}else if(t==='track'){document.querySelector('#caseNote').focus();document.querySelector('.detail-panel').scrollIntoView({behavior:'smooth',block:'start'});}else{document.querySelector('.layout').scrollIntoView({behavior:'smooth',block:'start'});}};
 $('#detailTrack').onclick=()=>{document.querySelector('#caseNote').focus();document.querySelector('.detail-panel').scrollIntoView({behavior:'smooth',block:'start'});toast('請填寫人工巡檢或處置回填');};
-buildThreeScene(); renderList(); renderEvents(); renderUtil(); selectLine('縱貫線'); animate();
+renderList(); renderEvents(); renderUtil();
+let threeReady=false;
+try{
+  buildThreeScene();
+  threeReady=true;
+  selectLine('縱貫線');
+  animate();
+}catch(err){
+  console.error('Three.js initialization failed:',err);
+  selectLine('縱貫線');
+  document.querySelector('#viewerTip').textContent='3D 引擎載入失敗，已保留 2D 備援地圖；其他決策功能仍可使用。';
+  toast('3D 引擎未載入，已切換備援地圖');
+}
 document.querySelector('#btnTopView').onclick=()=>{focusCamera(new THREE.Vector3(0,52,8),new THREE.Vector3(0,1,6));setViewLabel('3D 俯視');};
 document.querySelector('#btnPerspective').onclick=()=>{focusCamera(new THREE.Vector3(0,15,40),new THREE.Vector3(0,2,4));setViewLabel('3D 斜視');};
 document.querySelector('#btnResetCamera').onclick=()=>{focusCamera(new THREE.Vector3(0,15,40),new THREE.Vector3(0,2,4));setViewLabel('3D 斜視');};
