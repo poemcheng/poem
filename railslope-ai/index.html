@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07121e">
+<title>RailSlope-AI｜全台鐵道邊坡學習記憶決策平台</title>
+<meta name="description" content="HackRail TRA-003：Three.js 全台鐵道邊坡 3D 視覺化、巡檢記憶與學習型決策原型。">
+<style>
+:root{--bg:#06111c;--panel:#0b1b2a;--panel2:#10283a;--line:#1c4560;--txt:#eaf7ff;--mut:#8eb1c4;--cyan:#49c7e8;--green:#44d99b;--yellow:#ffd65c;--orange:#ff914d;--red:#ff5168;--purple:#a98cff}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:radial-gradient(circle at 55% 0,#0d2a3e 0,#06111c 42%,#040b12 100%);color:var(--txt);font-family:Inter,"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif}button,select,textarea{font:inherit}.app{min-height:100%;padding:12px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 16px;border:1px solid #1b4964;background:linear-gradient(180deg,#0b2133ee,#071520ee);border-radius:14px;box-shadow:0 18px 50px #0007}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border:1px solid #50d4f1;border-radius:12px;display:grid;place-items:center;font-weight:900;color:#8ce8ff;background:#0a3146}.brand h1{font-size:22px;margin:0}.brand small{display:block;color:#92bbcd;font-size:11px;margin-top:4px;letter-spacing:.06em}.state{display:flex;align-items:center;gap:9px;color:#b6d9e8;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:#2ce692;box-shadow:0 0 14px #2ce692}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:10px 0}.kpi{padding:12px 14px;background:linear-gradient(180deg,#0c2232,#081725);border:1px solid #173e56;border-radius:12px;min-height:82px}.kpi span{color:#8dafc0;font-size:11px}.kpi strong{font-size:27px;display:block;margin-top:7px}.kpi em{font-style:normal;font-size:10px;color:#6f9aac}.kpi.hot strong{color:var(--orange)}.kpi.mem strong{color:var(--purple)}.kpi.learn strong{color:var(--green)}
+.workspace{display:grid;grid-template-columns:300px minmax(0,1fr) 330px;gap:10px;min-height:640px}.panel{background:linear-gradient(180deg,#0b1d2c,#071520);border:1px solid #173f58;border-radius:14px;overflow:hidden;box-shadow:0 16px 38px #0005}.head{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid #15374d}.head h2{font-size:16px;margin:2px 0}.eyebrow{font-size:9px;color:#57cce9;letter-spacing:.18em}.badge{font-size:10px;border:1px solid #296381;border-radius:999px;padding:5px 8px;color:#a7ddf0}.tabs{display:flex;gap:6px;padding:10px}.tabs button{border:1px solid #234e66;background:#0b2637;color:#9ec1d0;border-radius:8px;padding:7px 10px;cursor:pointer}.tabs button.active{color:white;background:#115076;border-color:#4dbfe0}.memoryList{padding:0 10px 10px;max-height:545px;overflow:auto}.memory{border-left:3px solid #3382a1;background:#0a1b28;margin:8px 0;padding:10px 10px;border-radius:8px}.memory.user{border-left-color:var(--purple)}.memory.warn{border-left-color:var(--orange)}.memory.danger{border-left-color:var(--red)}.memory .meta{display:flex;justify-content:space-between;color:#6f9bad;font-size:9px}.memory b{display:block;font-size:12px;margin:6px 0}.memory p{margin:0;color:#9fbdca;font-size:10px;line-height:1.55}.panelFoot{padding:10px;border-top:1px solid #15374d;display:flex;gap:7px}.btn{border:1px solid #29617d;background:#0f3851;color:#dff7ff;border-radius:8px;padding:8px 10px;cursor:pointer}.btn:hover{background:#15506f}.btn.ghost{background:transparent;color:#92afbd}.mapPanel{position:relative;background:#05101a;border:1px solid #19445e;border-radius:14px;overflow:hidden;min-height:640px}.toolbar{position:absolute;z-index:8;left:12px;top:12px;display:flex;gap:7px;flex-wrap:wrap;background:#061522dc;border:1px solid #1d4a63;border-radius:10px;padding:8px;backdrop-filter:blur(10px)}.toolbar label{display:flex;gap:5px;align-items:center;color:#8eb1c4;font-size:10px}.toolbar select{background:#0b2637;color:#dff8ff;border:1px solid #24526a;border-radius:6px;padding:6px}.scene{position:absolute;inset:0}.overlay{position:absolute;z-index:5;background:#061522d8;border:1px solid #1d4a63;border-radius:9px;backdrop-filter:blur(8px)}.mapTitle{left:13px;bottom:13px;padding:10px 12px}.mapTitle b{display:block;font-size:13px}.mapTitle span{font-size:9px;color:#87a9b9}.legend{right:12px;bottom:12px;padding:10px}.legend span{display:flex;align-items:center;gap:6px;font-size:10px;color:#a8c5d2;margin:4px}.ldot{width:8px;height:8px;border-radius:50%}.drawer{position:absolute;z-index:12;right:12px;top:76px;width:min(360px,calc(100% - 24px));background:#071925f2;border:1px solid #2c6885;border-radius:12px;padding:14px;transform:translateX(120%);transition:.25s}.drawer.open{transform:none}.drawer h3{margin:5px 0 10px;font-size:15px}.close{position:absolute;right:8px;top:7px;border:0;background:transparent;color:#9bc4d5;font-size:18px;cursor:pointer}.detailGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.detailGrid div{background:#0b2434;border:1px solid #173f56;border-radius:8px;padding:8px}.detailGrid span{display:block;color:#759aab;font-size:9px}.detailGrid b{font-size:12px}.score{margin:8px 0;padding:9px;background:#091f2e;border-radius:8px;color:#a9c7d3;font-size:10px;line-height:1.5}.feedback textarea{width:100%;min-height:58px;background:#06131e;color:white;border:1px solid #244c63;border-radius:8px;padding:8px;resize:vertical}.feedbackBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}.feedbackBtns button{padding:7px;border-radius:7px;border:1px solid #2a5268;background:#0f3043;color:white;cursor:pointer}.feedbackBtns .bad{border-color:#7b3a48}.feedbackBtns .good{border-color:#31775b}
+.learningBody{padding:12px}.loop{height:190px;position:relative;display:grid;place-items:center}.ring{width:146px;height:146px;border:11px solid #123a50;border-top-color:#52cbea;border-right-color:#8679ed;border-bottom-color:#41d29a;border-radius:50%;filter:drop-shadow(0 0 9px #31a9ca55);animation:spin 12s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.brain{position:absolute;text-align:center}.brain strong{display:block;font-size:18px;color:#83e6ff}.brain small{font-size:9px;color:#759eaf}.node{position:absolute;background:#0b3043;border:1px solid #296986;border-radius:999px;padding:5px 8px;font-size:9px}.n1{top:8px}.n2{right:14px}.n3{bottom:8px}.n4{left:14px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px}.metric{background:#091e2d;border:1px solid #173d53;border-radius:9px;padding:9px}.metric span{font-size:9px;color:#789daf}.metric b{display:block;font-size:18px;margin-top:3px}.learnCard{margin-top:9px;background:#091d2b;border:1px solid #173d53;border-radius:9px;padding:10px}.learnCard h3{font-size:11px;margin:0 0 8px}.rule{display:flex;justify-content:space-between;font-size:10px;padding:4px 0;border-bottom:1px dashed #17384a;color:#a3bfcb}.learnCard p{font-size:9px;line-height:1.5;color:#7f9ead;margin:8px 0 0}.hotspots .row{display:flex;justify-content:space-between;gap:8px;font-size:10px;padding:5px 0}.hotspots .row b{color:#ffb46a}
+.workflow{margin-top:10px;padding:12px;border:1px solid #173f58;background:#081a28;border-radius:14px}.workflow h3{margin:0 0 10px;font-size:13px}.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.step{position:relative;border:1px solid #1d4a61;background:#0b2636;border-radius:9px;padding:10px;text-align:center}.step b{display:block;color:#58cfe9;font-size:9px}.step strong{display:block;font-size:12px;margin:3px}.step small{color:#759aaa;font-size:8px}.step.accent{border-color:#6f5fab;background:#1a1731}.step.accent2{border-color:#2f7d5e;background:#0e2c27}.evidence{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}.ev{background:#081926;border:1px solid #173f58;border-radius:12px;padding:12px}.ev span{font-size:9px;color:#7da4b5}.ev strong{display:block;font-size:22px;margin:5px 0;color:#dff7ff}.ev p{font-size:9px;line-height:1.55;color:#7899a8;margin:0}.toast{position:fixed;z-index:99;left:50%;bottom:22px;transform:translate(-50%,20px);background:#0d3041;border:1px solid #4fb6d2;border-radius:10px;padding:9px 14px;opacity:0;pointer-events:none;transition:.2s;font-size:11px}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1180px){.workspace{grid-template-columns:260px 1fr}.learningPanel{grid-column:1/-1}.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.app{padding:7px}.top{align-items:flex-start}.brand h1{font-size:17px}.state{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.workspace{display:block}.panel,.mapPanel{margin-bottom:8px}.memoryList{max-height:260px}.mapPanel{min-height:570px}.steps{grid-template-columns:repeat(3,1fr)}.evidence{grid-template-columns:1fr 1fr}.toolbar{right:10px}.kpi{min-height:72px}}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="logo">RS</div><div><h1>RailSlope-AI｜全台鐵道邊坡學習記憶決策平台</h1><small>Sense → Reason → Act → Remember → Learn</small></div></div>
+  <div class="state"><span>HackRail TRA-003</span><span class="dot"></span><span>ONLINE DEMO</span></div>
+</header>
+
+<section class="kpis">
+  <article class="kpi"><span>全台邊坡資產</span><strong>5,067</strong><em>競賽資料總表</em></article>
+  <article class="kpi hot"><span>C高邊坡</span><strong>717</strong><em>占全部資產 14.15%</em></article>
+  <article class="kpi"><span>C低邊坡</span><strong>1,023</strong><em>同級內再做動態排序</em></article>
+  <article class="kpi"><span>D級邊坡</span><strong>3,322</strong><em>占全部資產 65.56%</em></article>
+  <article class="kpi mem"><span>DataTrust 校正記憶</span><strong>299</strong><em>臺東清冊 X 標記</em></article>
+  <article class="kpi learn"><span>本機學習回填</span><strong id="feedbackCount">0</strong><em>重新整理仍保留</em></article>
+</section>
+
+<section class="workspace">
+  <aside class="panel">
+    <div class="head"><div><span class="eyebrow">MEMORY</span><h2>邊坡記憶 Slope Memory</h2></div><span class="badge" id="memoryCount">4</span></div>
+    <div class="tabs"><button class="active" data-filter="all">全部</button><button data-filter="system">競賽記憶</button><button data-filter="user">巡檢回填</button></div>
+    <div class="memoryList" id="memoryList"></div>
+    <div class="panelFoot"><button class="btn" id="exportBtn">匯出回填 CSV</button><button class="btn ghost" id="clearBtn">清除本機記憶</button></div>
+  </aside>
+
+  <section class="mapPanel">
+    <div class="toolbar">
+      <label>工務段 <select id="sectionFilter"><option value="all">全部</option></select></label>
+      <label>路線 <select id="lineFilter"><option value="all">全部</option></select></label>
+      <label>分級 <select id="gradeFilter"><option value="all">全部</option><option>B</option><option>C高</option><option>C低</option><option>D</option></select></label>
+      <button class="btn" id="resetView">重設視角</button>
+    </div>
+    <div id="scene" class="scene"></div>
+    <div class="overlay mapTitle"><b>全台 3D 邊坡決策視圖</b><span id="mapSubtitle">依 TRA-003 工務段 × 路線 × 分級統計生成展示定位</span></div>
+    <div class="overlay legend">
+      <span><i class="ldot" style="background:#ff5168"></i>B</span>
+      <span><i class="ldot" style="background:#ff914d"></i>C高</span>
+      <span><i class="ldot" style="background:#ffd65c"></i>C低</span>
+      <span><i class="ldot" style="background:#44d99b"></i>D</span>
+    </div>
+    <aside class="drawer" id="drawer">
+      <button class="close" id="closeDrawer">×</button>
+      <span class="eyebrow">ASSET MEMORY</span><h3 id="assetTitle">選取一處邊坡</h3>
+      <div class="detailGrid">
+        <div><span>工務段</span><b id="assetSection">—</b></div><div><span>路線</span><b id="assetLine">—</b></div>
+        <div><span>分級</span><b id="assetGrade">—</b></div><div><span>經驗校正優先分</span><b id="assetScore">—</b></div>
+      </div>
+      <div class="score" id="scoreExplain"></div>
+      <div class="feedback"><textarea id="feedbackNote" placeholder="輸入現場觀察、處置或判讀依據"></textarea>
+        <div class="feedbackBtns">
+          <button data-feedback="確認異常" class="bad">確認異常 +6</button><button data-feedback="誤報">誤報 −4</button>
+          <button data-feedback="已改善" class="good">已改善 −10</button><button data-feedback="持續觀察">持續觀察 +2</button>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <aside class="panel learningPanel">
+    <div class="head"><div><span class="eyebrow">LEARNING</span><h2>學習引擎 Learning Engine</h2></div><span class="badge" id="modelVersion">Rule Baseline v1.0</span></div>
+    <div class="learningBody">
+      <div class="loop"><div class="ring"></div><div class="brain"><strong>記憶</strong><small>Continuous Learning</small></div><span class="node n1">資料</span><span class="node n2">判斷</span><span class="node n3">派工</span><span class="node n4">回填</span></div>
+      <div class="metrics">
+        <div class="metric"><span>資產知識底座</span><b>5,067</b></div><div class="metric"><span>編碼待校正率</span><b>89.52%</b></div>
+        <div class="metric"><span>年度解列記憶</span><b>64</b></div><div class="metric"><span>回填標籤</span><b id="labelCount">0</b></div>
+      </div>
+      <div class="learnCard"><h3>經驗校正規則（MVP）</h3><div class="rule"><span>確認異常</span><b>+6</b></div><div class="rule"><span>誤報</span><b>−4</b></div><div class="rule"><span>已改善</span><b>−10</b></div><div class="rule"><span>持續觀察</span><b>+2</b></div><p>本頁將「記憶」直接轉成下一次巡檢優先序的修正量；目前不是災害機率模型。取得真實 TP/FP/FN/TN 後可替換為 Logistic / XGBoost + SHAP。</p></div>
+      <div class="learnCard hotspots"><h3>C高熱點 Top 5</h3><div class="row"><span>臺中 × 縱貫線</span><b>170</b></div><div class="row"><span>臺北 × 縱貫線</span><b>130</b></div><div class="row"><span>宜蘭 × 平溪線</span><b>103</b></div><div class="row"><span>宜蘭 × 宜蘭線</span><b>101</b></div><div class="row"><span>嘉義 × 集集線</span><b>63</b></div></div>
+    </div>
+  </aside>
+</section>
+
+<section class="workflow"><h3>核心創新：過去系統「告警後結束」；RailSlope-AI「巡檢後形成記憶，下一次決策會改變」</h3><div class="steps">
+  <div class="step"><b>01</b><strong>感知</strong><small>清冊 / GIS / 感測</small></div>
+  <div class="step"><b>02</b><strong>判斷</strong><small>官方分級 + 動態因子</small></div>
+  <div class="step"><b>03</b><strong>派工</strong><small>巡檢優先序</small></div>
+  <div class="step"><b>04</b><strong>回填</strong><small>確認 / 誤報 / 改善</small></div>
+  <div class="step accent"><b>05</b><strong>記憶</strong><small>事件 / 資產 / 版本</small></div>
+  <div class="step accent2"><b>06</b><strong>學習</strong><small>校正下一次決策</small></div>
+</div></section>
+
+<section class="evidence">
+  <article class="ev"><span>DataTrust｜資料不是直接相信</span><strong>299 / 334</strong><p>臺東工務段可判讀 V/X 的 334 筆紀錄中，299 筆標示 X。系統保留原始值與修正建議。</p></article>
+  <article class="ev"><span>Version Memory｜跨年度不失憶</span><strong>1,579 → 1,515</strong><p>宜蘭工務段 114→115 年清冊數量變化，另保留改線解列 64 筆版本記憶。</p></article>
+  <article class="ev"><span>RiskOps｜有限巡檢資源聚焦</span><strong>79.08%</strong><p>前五個工務段×路線熱點合計 567 處 C高，占 717 處 C高的 79.08%。</p></article>
+  <article class="ev"><span>Audit｜彙總差異可追溯</span><strong>+424 m</strong><p>總表 556,710 m；逐路線重算 557,134 m。系統標記差異供人工確認，不自動覆寫。</p></article>
+</section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import * as THREE from "three";
+
+const SECTIONS=[
+{name:"臺北工務段",lat:24.98,lon:121.43,span:[.35,.55],lines:[["宜蘭線",0,0,4,8],["縱貫線",3,130,314,532],["內灣線",2,37,27,280]]},
+{name:"臺中工務段",lat:24.28,lon:120.72,span:[.52,.30],lines:[["縱貫線",0,170,95,231],["臺中線",0,40,39,215],["成追線",0,0,0,3]]},
+{name:"嘉義工務段",lat:23.55,lon:120.43,span:[.42,.28],lines:[["縱貫線",0,44,66,204],["集集線",0,63,6,103]]},
+{name:"高雄工務段",lat:22.72,lon:120.38,span:[.48,.30],lines:[["縱貫線",0,0,16,34],["沙崙線",0,0,0,3],["屏東線",0,0,8,94]]},
+{name:"臺東工務段",lat:22.92,lon:121.13,span:[.58,.20],lines:[["臺東線",0,4,175,156]]},
+{name:"花蓮工務段",lat:23.78,lon:121.43,span:[.60,.22],lines:[["北迴線",0,22,6,151],["花蓮港線",0,0,12,22],["臺東線",0,0,25,208]]},
+{name:"宜蘭工務段",lat:24.72,lon:121.72,span:[.42,.25],lines:[["宜蘭線",0,101,185,612],["北迴線",0,0,9,142],["平溪線",0,103,16,255],["深澳線",0,3,20,69]]}
+];
+const COLORS={B:0xff5168,"C高":0xff914d,"C低":0xffd65c,D:0x44d99b};
+const BASE={B:95,"C高":82,"C低":60,D:35};
+const MEMORY_KEY="railslope_online_memory_v1";
+const seedMemory=[
+{source:"system",cls:"warn",title:"臺東工務段邊坡編碼校正",detail:"競賽清冊中 299 筆標記為 X；保留原編碼、建議編碼與修正原因。",scope:"臺東"},
+{source:"system",title:"宜蘭工務段 114→115 年版本差異",detail:"邊坡數由 1,579 處調整為 1,515 處，另有改線解列 64 筆清冊。",scope:"宜蘭"},
+{source:"system",cls:"danger",title:"C高資產集中熱點",detail:"最高熱點為臺中工務段－縱貫線，C高 170 處。",scope:"全臺"},
+{source:"system",cls:"warn",title:"總長度彙總待人工確認",detail:"總表 556,710 m；逐路線欄位重算存在 +424 m 差異，標記待確認而非自動覆寫。",scope:"全臺"}
+];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+function rng(n){const x=Math.sin(n*12.9898+78.233)*43758.5453;return x-Math.floor(x)}
+function project(lon,lat){const s=18;return new THREE.Vector3((lon-120.95)*s,.36,-(lat-23.65)*s)}
+let assets=[],visible=[],selected=null,pointsGroup,scene,camera,renderer,raycaster=new THREE.Raycaster(),mouse=new THREE.Vector2();
+let dragging=false,lastX=0,lastY=0,downX=0,downY=0;
+let seq=0;
+for(const sec of SECTIONS){sec.lines.forEach((ln,li)=>{const [name,b,ch,cl,d]=ln;[["B",b],["C高",ch],["C低",cl],["D",d]].forEach(([grade,count],gi)=>{for(let j=0;j<count;j++){const t=count<2?0:j/(count-1)-.5;const lat=sec.lat+t*sec.span[0]*.72+(rng(++seq+gi*31)-.5)*sec.span[0]*.23;const lon=sec.lon+Math.sin(t*6.2+li)*sec.span[1]*.28+(rng(seq*2.7)-.5)*sec.span[1]*.24;assets.push({id:`RS-${seq}`,code:`${sec.name.replace("工務段","")}-${name}-${String(j+1).padStart(4,"0")}`,section:sec.name,line:name,grade,lat,lon})}})})}
+const allLines=[...new Set(SECTIONS.flatMap(s=>s.lines.map(l=>l[0])))];
+SECTIONS.forEach(s=>$("#sectionFilter").insertAdjacentHTML("beforeend",`<option>${s.name}</option>`));
+allLines.forEach(l=>$("#lineFilter").insertAdjacentHTML("beforeend",`<option>${l}</option>`));
+
+function memories(){try{return JSON.parse(localStorage.getItem(MEMORY_KEY)||"[]")}catch{return[]}}
+function saveMem(m){localStorage.setItem(MEMORY_KEY,JSON.stringify(m));updateLearning();renderMemory()}
+function delta(a){return memories().filter(x=>x.assetId===a.id).reduce((s,x)=>s+({"確認異常":6,"誤報":-4,"已改善":-10,"持續觀察":2}[x.label]||0),0)}
+function score(a){return Math.max(0,Math.min(100,(BASE[a.grade]||50)+delta(a)))}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(e.timer);e.timer=setTimeout(()=>e.classList.remove("show"),2200)}
+function renderMemory(filter="all"){const user=memories();const list=[...user,...seedMemory].filter(x=>filter==="all"||x.source===filter);$("#memoryCount").textContent=user.length+seedMemory.length;$("#memoryList").innerHTML=list.map(x=>`<article class="memory ${x.source==="user"?"user":""} ${x.cls||""}"><div class="meta"><span>${x.source==="user"?"巡檢回填":"競賽資料記憶"}</span><span>${x.source==="user"?new Date(x.ts).toLocaleString("zh-TW",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):x.scope}</span></div><b>${x.source==="user"?x.label+"｜"+x.assetCode:x.title}</b><p>${x.source==="user"?(x.note||x.section+"・"+x.line+"・"+x.grade):x.detail}</p></article>`).join("")}
+function updateLearning(){const n=memories().length;$("#feedbackCount").textContent=n;$("#labelCount").textContent=n;$("#modelVersion").textContent=n?`Experience-Calibrated v1.${n}`:"Rule Baseline v1.0"}
+function updateLines(){const sec=$("#sectionFilter").value,sel=$("#lineFilter"),prev=sel.value;sel.innerHTML='<option value="all">全部</option>';const lines=new Set();SECTIONS.filter(s=>sec==="all"||s.name===sec).forEach(s=>s.lines.forEach(l=>lines.add(l[0])));[...lines].forEach(l=>sel.insertAdjacentHTML("beforeend",`<option>${l}</option>`));if([...sel.options].some(o=>o.value===prev))sel.value=prev}
+function filtered(){const s=$("#sectionFilter").value,l=$("#lineFilter").value,g=$("#gradeFilter").value;return assets.filter(a=>(s==="all"||a.section===s)&&(l==="all"||a.line===l)&&(g==="all"||a.grade===g))}
+function rebuild(){visible=filtered();$("#mapSubtitle").textContent=`${visible.length.toLocaleString()} 個可視資產｜統計展示定位，非正式 GIS 座標`;while(pointsGroup.children.length){const o=pointsGroup.children.pop();o.geometry?.dispose();o.material?.dispose()}for(const g of ["B","C高","C低","D"]){const arr=visible.filter(a=>a.grade===g);if(!arr.length)continue;const p=new Float32Array(arr.length*3);arr.forEach((a,i)=>{const v=project(a.lon,a.lat);p[i*3]=v.x;p[i*3+1]=g==="B"?.7:g==="C高"?.58:.46;p[i*3+2]=v.z});const geo=new THREE.BufferGeometry();geo.setAttribute("position",new THREE.BufferAttribute(p,3));const mat=new THREE.PointsMaterial({color:COLORS[g],size:g==="B"?.25:g==="C高"?.19:.12,sizeAttenuation:true,transparent:true,opacity:.9,depthWrite:false});const pts=new THREE.Points(geo,mat);pts.userData.assets=arr;pointsGroup.add(pts)}}
+function openAsset(a){selected=a;$("#drawer").classList.add("open");$("#assetTitle").textContent=a.code;$("#assetSection").textContent=a.section;$("#assetLine").textContent=a.line;$("#assetGrade").textContent=a.grade;$("#assetScore").textContent=score(a);const d=delta(a);$("#scoreExplain").innerHTML=`官方分級基準 ${BASE[a.grade]} + 記憶校正 ${d>=0?"+":""}${d} = <b>${score(a)}</b>。這是巡檢優先分，不是災害發生機率。`}
+function addFeedback(label){if(!selected)return toast("請先點選地圖上的邊坡");const m=memories();m.unshift({source:"user",assetId:selected.id,assetCode:selected.code,section:selected.section,line:selected.line,grade:selected.grade,label,note:$("#feedbackNote").value.trim(),ts:new Date().toISOString()});saveMem(m);$("#feedbackNote").value="";openAsset(selected);toast(`已記憶「${label}」，下一次優先分已更新`)}
+function exportCSV(){const m=memories();if(!m.length)return toast("目前尚無巡檢回填");const q=v=>'"'+String(v??"").replaceAll('"','""')+'"';const rows=[["timestamp","asset_id","asset_code","section","line","grade","feedback","note"],...m.map(x=>[x.ts,x.assetId,x.assetCode,x.section,x.line,x.grade,x.label,x.note])];const b=new Blob(["\ufeff"+rows.map(r=>r.map(q).join(",")).join("\n")],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="railslope_feedback_memory.csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+
+function init3D(){
+const host=$("#scene");scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x06111c,.028);camera=new THREE.PerspectiveCamera(42,host.clientWidth/host.clientHeight,.1,200);camera.position.set(0,25,34);camera.lookAt(0,0,0);renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(host.clientWidth,host.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;host.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xbbeeff,0x071016,1.4));const dl=new THREE.DirectionalLight(0xffffff,2);dl.position.set(-10,18,8);scene.add(dl);
+const shape=new THREE.Shape();[[121.56,25.30],[121.90,24.96],[121.76,24.35],[121.82,23.70],[121.37,22.10],[120.72,21.90],[120.18,22.70],[120.08,23.55],[120.35,24.38],[120.83,25.12],[121.56,25.30]].forEach((p,i)=>{const v=project(p[0],p[1]);i?shape.lineTo(v.x,-v.z):shape.moveTo(v.x,-v.z)});const geo=new THREE.ExtrudeGeometry(shape,{depth:.45,bevelEnabled:true,bevelSize:.10,bevelThickness:.08,steps:1});geo.rotateX(-Math.PI/2);geo.translate(0,-.55,0);const land=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x173d34,roughness:.82,emissive:0x09271e,emissiveIntensity:.45}));scene.add(land);scene.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo),new THREE.LineBasicMaterial({color:0x4fb4c7,transparent:true,opacity:.5})));
+for(let i=0;i<26;i++){const t=i/25,lat=25.0-t*2.6,lon=121.1+(Math.sin(t*4.2)-.2)*.20,v=project(lon,lat);const cone=new THREE.Mesh(new THREE.ConeGeometry(.42+(1-Math.abs(t-.5)*1.4)*.25,1+(1-Math.abs(t-.5)*1.4)*1.3,8),new THREE.MeshStandardMaterial({color:0x285643,roughness:1}));cone.position.set(v.x,.1,v.z);scene.add(cone)}
+const railMat=new THREE.LineBasicMaterial({color:0xdffaff,transparent:true,opacity:.65});const routes=[[[121.55,25.15],[121.0,24.7],[120.7,24.1],[120.45,23.5],[120.3,22.7]],[[121.55,25.15],[121.8,24.7],[121.7,24.1],[121.4,23.4],[121.2,22.7]]];routes.forEach(r=>{const pts=r.map(p=>project(p[0],p[1]).setY(.16));scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),railMat))});
+scene.add(new THREE.GridHelper(60,30,0x183b4e,0x0b2634));pointsGroup=new THREE.Group();scene.add(pointsGroup);rebuild();
+const el=renderer.domElement;el.addEventListener("pointerdown",e=>{dragging=true;lastX=downX=e.clientX;lastY=downY=e.clientY;el.setPointerCapture(e.pointerId)});el.addEventListener("pointermove",e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;const s=new THREE.Spherical().setFromVector3(camera.position);s.theta-=dx*.005;s.phi=Math.max(.35,Math.min(1.45,s.phi+dy*.005));camera.position.setFromSpherical(s);camera.lookAt(0,0,0)});el.addEventListener("pointerup",e=>{dragging=false;if(Math.hypot(e.clientX-downX,e.clientY-downY)>6)return;const r=el.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(mouse,camera);const h=raycaster.intersectObjects(pointsGroup.children)[0];if(h){const a=h.object.userData.assets[h.index];if(a)openAsset(a)}});el.addEventListener("wheel",e=>{e.preventDefault();camera.position.multiplyScalar(e.deltaY>0?1.07:.93);camera.position.setLength(Math.max(14,Math.min(65,camera.position.length())))},{passive:false});
+function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();addEventListener("resize",()=>{camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();renderer.setSize(host.clientWidth,host.clientHeight)})
+}
+$("#sectionFilter").addEventListener("change",()=>{updateLines();rebuild()});$("#lineFilter").addEventListener("change",rebuild);$("#gradeFilter").addEventListener("change",rebuild);$("#resetView").onclick=()=>{camera.position.set(0,25,34);camera.lookAt(0,0,0)};$("#closeDrawer").onclick=()=>$("#drawer").classList.remove("open");$$("[data-feedback]").forEach(b=>b.onclick=()=>addFeedback(b.dataset.feedback));$$(".tabs button").forEach(b=>b.onclick=()=>{$$(".tabs button").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderMemory(b.dataset.filter)});$("#exportBtn").onclick=exportCSV;$("#clearBtn").onclick=()=>{if(confirm("確定清除本機巡檢記憶？競賽資料記憶不會刪除。")){localStorage.removeItem(MEMORY_KEY);renderMemory();updateLearning();if(selected)openAsset(selected)}};
+updateLines();renderMemory();updateLearning();init3D();
+</script>
+</body>
+</html>
