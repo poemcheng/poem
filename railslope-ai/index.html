@@ -29,6 +29,9 @@
     </div>
     <div class="actions">
       <button class="btn primary" id="btnDemo">示範：北迴線案例鏈</button>
+      <button class="btn" id="btnTopView">俯視</button>
+      <button class="btn" id="btnPerspective">斜視</button>
+      <button class="btn" id="btnResetCamera">重設視角</button>
       <button class="btn" id="btnTerrain">坡面檢視</button>
       <button class="btn">匯出摘要</button>
     </div>
@@ -49,62 +52,53 @@
       <div class="list" id="lineList"></div>
     </aside>
 
-    <section class="panel network">
-      <div class="network-tools">
-        <button class="btn" id="btnReset">回到縱貫線</button>
-        <button class="btn" id="btnShowChain">查看案例鏈</button>
-        <button class="btn" id="btnShowOps">查看營運影響</button>
+    <section class="panel scene-panel">
+      <div class="panel-h scene-head">
+        <div>
+          <b>Three.js 3D 台灣地圖與鐵道路線</b>
+          <small>可旋轉 / 縮放 / 點選；事件點、邊坡點與熱區可獨立開關</small>
+        </div>
+        <div class="scene-legend">
+          <span><i class="dot high"></i> 高利用率 ≥85%</span>
+          <span><i class="dot mid"></i> 中高利用率 70–84%</span>
+          <span><i class="dot low"></i> 其他路線</span>
+          <span><i class="dot event"></i> 歷史事件</span>
+          <span><i class="dot slope"></i> 邊坡點</span>
+        </div>
       </div>
-      <div class="map-head">
-        <b>臺鐵路網地理示意</b>
-        <small>以臺灣實際相對位置重新繪製；用於看懂路線分布，不再採用抽象閉環圖。</small>
+      <div class="scene-toolbar">
+        <button class="btn slim" id="btnReset">回到縱貫線</button>
+        <button class="btn slim" id="btnFocusNorth">看北部</button>
+        <button class="btn slim" id="btnFocusEast">看東部</button>
+        <button class="btn slim" id="btnShowChain">查看案例鏈</button>
+        <button class="btn slim" id="btnShowOps">查看營運影響</button>
+        <div class="layer-controls" aria-label="3D 圖層控制">
+          <label><input type="checkbox" id="layerRoutes" checked> 路線</label>
+          <label><input type="checkbox" id="layerEvents" checked> 事件點</label>
+          <label><input type="checkbox" id="layerSlopes" checked> 邊坡點</label>
+          <label><input type="checkbox" id="layerHeat" checked> 熱區</label>
+          <label><input type="checkbox" id="layerStations" checked> 站點</label>
+        </div>
       </div>
-      <svg viewBox="0 0 760 820" aria-label="臺鐵路網地理示意圖">
-        <rect x="0" y="0" width="760" height="820" fill="#f7fbfd"/>
-        <path d="M419 73 C472 83 518 117 548 161 C574 201 589 251 594 307 C600 369 597 432 583 496 C570 553 547 619 518 677 C490 730 454 773 413 793 C374 812 334 804 299 773 C263 741 230 690 204 634 C180 578 164 513 158 446 C151 374 155 308 169 248 C183 190 208 139 246 104 C292 63 355 55 419 73 Z" fill="#eff4f7" stroke="#d7e1e7" stroke-width="2"/>
-        <g class="legend-box">
-          <rect x="32" y="24" width="248" height="78" rx="10" fill="#ffffff" stroke="#dbe3e8"/>
-          <text x="48" y="48" class="legend-title">路線顏色 = 最高區間利用率</text>
-          <line x1="50" y1="68" x2="90" y2="68" stroke="#c24d4d" stroke-width="7" stroke-linecap="round"/>
-          <text x="98" y="72" class="legend-text">紅 ≥ 85%</text>
-          <line x1="150" y1="68" x2="190" y2="68" stroke="#c28b27" stroke-width="7" stroke-linecap="round"/>
-          <text x="198" y="72" class="legend-text">黃 70–84%</text>
-          <line x1="50" y1="88" x2="90" y2="88" stroke="#8aa0ad" stroke-width="7" stroke-linecap="round"/>
-          <text x="98" y="92" class="legend-text">灰 &lt; 70%</text>
-        </g>
-        <g class="rail-layer">
-          <path id="r-縱貫線" class="route" data-line="縱貫線" d="M394 126 C354 157 316 209 286 275 C258 340 245 410 249 487 C253 572 275 646 323 713" stroke="#c24d4d" stroke-width="9"/>
-          <path id="r-屏東線" class="route" data-line="屏東線" d="M323 713 C335 732 349 746 367 761" stroke="#c24d4d" stroke-width="8"/>
-          <path id="r-宜蘭線" class="route" data-line="宜蘭線" d="M394 126 C431 132 467 149 496 175 C519 195 536 218 548 246" stroke="#c24d4d" stroke-width="8"/>
-          <path id="r-北迴線" class="route" data-line="北迴線" d="M548 246 C565 291 573 344 574 398 C575 430 572 462 568 492" stroke="#c28b27" stroke-width="8"/>
-          <path id="r-臺東線" class="route" data-line="臺東線" d="M568 492 C560 556 548 615 520 675" stroke="#c28b27" stroke-width="8"/>
-          <path id="r-南迴線" class="route" data-line="南迴線" d="M520 675 C483 723 430 754 367 761" stroke="#8aa0ad" stroke-width="7"/>
-          <path id="r-臺中線" class="route" data-line="臺中線" d="M291 292 C323 342 335 403 327 457" stroke="#c28b27" stroke-width="7"/>
-          <path id="r-內灣線" class="branch" data-line="內灣線" d="M287 292 C332 288 369 289 405 297"/>
-          <path id="r-平溪線" class="branch" data-line="平溪線" d="M501 177 C525 153 550 141 582 136"/>
-          <path id="r-深澳線" class="branch" data-line="深澳線" d="M492 190 C525 182 556 181 590 187"/>
-          <path id="r-集集線" class="branch" data-line="集集線" d="M279 540 C315 545 343 560 372 587"/>
-          <path id="r-花蓮港線" class="branch" data-line="花蓮港線" d="M567 430 C594 430 616 435 635 449"/>
-          <path id="r-成追線" class="branch" data-line="成追線" d="M305 442 C324 452 344 463 359 475"/>
-        </g>
-
-        <g class="station-group">
-          <circle class="station" cx="394" cy="126" r="6"/><text class="label" x="373" y="108">臺北 / 八堵</text>
-          <circle class="station" cx="287" cy="292" r="6"/><text class="label" x="226" y="286">新竹</text>
-          <circle class="station" cx="279" cy="540" r="6"/><text class="label" x="214" y="544">臺中 / 二水</text>
-          <circle class="station" cx="323" cy="713" r="6"/><text class="label" x="285" y="736">高雄</text>
-          <circle class="station" cx="367" cy="761" r="6"/><text class="label" x="357" y="787">屏東</text>
-          <circle class="station" cx="548" cy="246" r="6"/><text class="label" x="560" y="244">宜蘭 / 蘇澳</text>
-          <circle class="station" cx="574" cy="398" r="6"/><text class="label" x="586" y="403">花蓮 / 和平</text>
-          <circle class="station" cx="520" cy="675" r="6"/><text class="label" x="531" y="680">臺東</text>
-          <circle class="minor-station" cx="359" cy="475" r="4"/><text class="minor-label" x="367" y="479">成功 / 追分</text>
-          <circle class="minor-station" cx="372" cy="587" r="4"/><text class="minor-label" x="380" y="592">集集</text>
-          <circle class="minor-station" cx="405" cy="297" r="4"/><text class="minor-label" x="412" y="302">內灣</text>
-          <circle class="minor-station" cx="590" cy="187" r="4"/><text class="minor-label" x="599" y="191">深澳</text>
-          <circle class="minor-station" cx="582" cy="136" r="4"/><text class="minor-label" x="591" y="140">平溪</text>
-        </g>
-      </svg>
-      <div class="network-foot"><span>地圖重點是讓使用者一眼看懂北部幹線、東部幹線與各支線的真實相對位置。</span><span>點選任一路線可同步右側摘要與下方案例鏈</span></div>
+      <div class="viewer-wrap">
+        <div id="viewer3d"></div>
+        <div id="viewerTip" class="viewer-tip">拖曳旋轉、滾輪縮放；點選路線、事件點或邊坡點查看詳細資訊</div>
+        <div id="hoverLabel" class="hover-label"></div>
+        <aside id="pointInspector" class="point-inspector" hidden>
+          <button type="button" id="pointInspectorClose" class="point-close" aria-label="關閉點位詳情">×</button>
+          <span id="pointType" class="point-type">EVENT</span>
+          <h4 id="pointTitle">點位詳情</h4>
+          <div id="pointMeta" class="point-meta"></div>
+          <div id="pointDescription" class="point-desc"></div>
+          <div id="pointSource" class="point-source"></div>
+        </aside>
+      </div>
+      <div class="viewer-foot">
+        <div class="mini-card"><span>目前視角</span><b id="viewMode">3D 斜視</b></div>
+        <div class="mini-card"><span>選定路線</span><b id="geoLineName">縱貫線</b></div>
+        <div class="mini-card"><span>瓶頸區間</span><b id="geoBottle">八堵–樹林</b></div>
+        <div class="mini-card"><span>案例鏈狀態</span><b id="geoCaseStatus">尚無完整案例鏈</b></div>
+      </div>
     </section>
 
     <aside class="panel detail-panel">
@@ -271,6 +265,6 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<script defer src="./app.js"></script>
+<script type="module" src="./app.js"></script>
 </body>
 </html>
