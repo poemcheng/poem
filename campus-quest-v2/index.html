@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#132c35"><title>朝陽校園探索｜Campus Quest</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<canvas id="scene" aria-label="朝陽校園互動 3D 場景"></canvas>
+<div id="boot"><span class="loadmark">CQ</span><p>正在建立校園場景…</p></div>
+<div id="fatal" hidden><h1>場景無法啟動</h1><p id="fatalText"></p><p>請使用更新的 Chrome／Edge，啟用圖形加速，再重新整理。檔案需先完整解壓縮。</p></div>
+<section id="landing">
+ <div class="eyebrow"><span class="mark">CQ</span> CYUT · INDUSTRIAL ENGINEERING & MANAGEMENT</div>
+ <div class="hero"><p class="chapter">ARCHITECTURAL EDITION / V2.0</p><h1>走進朝陽。<br>從一樓，<br><em>到六樓。</em></h1><p class="intro">從新生報到，到改善一條產線。<br>以工管學生的視角，重新探索朝陽。</p>
+ <div class="heroActions"><button class="primary" id="start">進入校園 <span>↗</span></button><button class="ghost" id="vrLanding">在 Quest 3 開啟 VR</button></div>
+ <div class="features"><span>14 棟建築重建</span><span>連續樓層與階梯</span><span>電腦 / WebXR</span></div>
+ <p class="notice">v2 建築空間版。紋理、光照、起伏地形、連續樓層與公尺尺度互動。依公開資料重建；幾何、層高與室內為設計值，不是實測校園複製。</p>
+ </div>
+ <div class="landingBottom"><span>CHAOYANG UNIVERSITY OF TECHNOLOGY</span><span id="capability">正在檢查圖形與 VR 支援</span></div>
+</section>
+<div id="hud" hidden>
+ <header><div class="brand"><span class="mark">CQ</span><div>朝陽校園探索<small>CAMPUS QUEST</small></div></div><div id="zone">主校區</div><div class="topActions"><span id="xp">0 XP</span><button id="mapBtn">地圖 M</button><button id="menuBtn">任務 Tab</button><button id="viewBtn">第一人稱 V</button><button id="vrBtn">進入 VR</button></div></header>
+ <section id="mission"><p class="sectionLabel">CURRENT MISSION</p><h2 id="missionTitle"></h2><p id="missionDesc"></p><div class="progress"><i id="progressFill"></i></div><p id="nextTarget"></p></section>
+ <div id="toast" hidden role="status"></div>
+ <aside id="floorStatus"><strong id="floorHud">OUTDOOR</strong><span id="heightHud"></span><small>連續樓層 · 公尺尺度模型</small></aside><div id="reticle">·</div>
+ <div id="prompt" hidden><kbd>E</kbd><div><strong id="promptName"></strong><small>靠近後互動 · VR 使用右扳機</small></div></div>
+ <section id="mini"><canvas id="minimap" width="500" height="460" aria-label="示意小地圖"></canvas><div><span id="maploc">主校區 · 示意配置</span><span id="coord"></span></div></section>
+ <aside id="keys"><span><kbd>W A S D</kbd> 移動</span><span><kbd>滑鼠拖曳</kbd> 環顧</span><span><kbd>Shift</kbd> 快跑</span><span><kbd>F</kbd> 上下車</span><span><kbd>O</kbd> 鳥瞰</span></aside>
+ <footer><span id="saveState">本機自動存檔</span><span>公開圖／照片參考重建 · 標高非海拔 · 非現場導航</span><span id="perf" hidden></span></footer>
+</div>
+<section id="dialog" hidden role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><div class="dialogInner"><p class="sectionLabel">CAMPUS INTERACTION</p><h2 id="dialogTitle"></h2><p id="dialogBody"></p><div id="dialogOptions"></div></div></section>
+<section id="mapPanel" hidden role="dialog" aria-modal="true" aria-label="校園地圖"><div class="mapHeader"><div><p class="sectionLabel">EXPLORE / NAVIGATE</p><h2>朝陽主校區 · 探索地圖</h2></div><button id="mapClose">關閉 Esc</button></div><div class="mapBody"><canvas id="fullmap" width="1100" height="1000"></canvas><aside><p>地圖上方朝向宿舍區；不是地理正北。路程單位是示意世界的虛擬公尺。</p><div id="buildingList"></div></aside></div></section>
+<section id="settings" hidden><h2>畫面與學習紀錄</h2><label>渲染品質 <select id="quality"><option value="high">高品質（電腦）</option><option value="balanced">均衡（Quest）</option><option value="low">效能（關閉陰影）</option></select></label><label>曝光 <input id="exposure" type="range" min="0.65" max="1.6" step="0.05" value="1"></label><label><input id="showPerf" type="checkbox"> 顯示即時效能診斷</label><label><input id="hideLabels" type="checkbox"> 隱藏場景文字標示</label><p>不需要姓名或學號，不上傳伺服器。跨裝置不會自動同步。</p><button id="jsonExport">匯出 JSON 紀錄</button><button id="csvExport">匯出 CSV 事件</button><button id="resetBtn" class="danger">重置進度</button><button id="settingsClose">返回</button></section>
+<button id="recordsBtn" hidden title="匯出學習紀錄">紀錄 ↗</button>
+<div id="fade"></div><script src="data/campus.js"></script><script src="src/math.js"></script><script src="assets/materials.js"></script><script src="src/render.js"></script><script src="src/spatial.js"></script><script src="src/world.js"></script><script src="src/navigation.js"></script><script src="src/game.js"></script><script src="src/game-v2.js"></script><script src="src/app-v2.js"></script><script src="src/app.js"></script>
+</body></html>

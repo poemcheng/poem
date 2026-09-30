@@ -1,0 +1,90 @@
+{
+  "engine": "Node.js v22.23.3",
+  "notice": "Deterministic software tests; not physical headset verification.",
+  "tests": [
+    {
+      "name": "3D world has 62 connected authored building storeys",
+      "status": "PASS"
+    },
+    {
+      "name": "Non-flat terrain has more than 25 m relief in campus",
+      "status": "PASS"
+    },
+    {
+      "name": "All learning targets stand on a matching 5F/6F slab without collision",
+      "status": "PASS"
+    },
+    {
+      "name": "Every floor-panel landing is free of colliders and supported",
+      "status": "PASS"
+    },
+    {
+      "name": "Public entries are reachable from outside their facade",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: E",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: T",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: D",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: M",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: L",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: G",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: I",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: A",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: GYM",
+      "status": "PASS"
+    },
+    {
+      "name": "Walk both stair flights, every floor: AV",
+      "status": "PASS"
+    },
+    {
+      "name": "Descend E6 to E1 without floor tunnelling",
+      "status": "PASS"
+    },
+    {
+      "name": "Cannot interact with 5F office from ground floor",
+      "status": "PASS"
+    },
+    {
+      "name": "Same floor U-shaped corridor connects three 6F stations",
+      "status": "PASS"
+    },
+    {
+      "name": "Window collision prevents wall traversal",
+      "status": "PASS"
+    },
+    {
+      "name": "Floor transfer rejects unsupported coordinates",
+      "status": "PASS"
+    },
+    {
+      "name": "Learned progress survives same-browser load",
+      "status": "PASS"
+    }
+  ]
+}
