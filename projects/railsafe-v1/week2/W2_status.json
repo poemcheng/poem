@@ -1,0 +1,12 @@
+{
+  "snapshot": "2026-11-07",
+  "pilot_zones": 2,
+  "candidate_links": 8,
+  "crs_authoritatively_verified": false,
+  "verified_asset_matches": 0,
+  "live_asf_scene_ids": 0,
+  "hyp3_jobs": 0,
+  "insar_geotiffs": 0,
+  "unit_tests_passed": 6,
+  "mode": "RESEARCH_ONLY"
+}
