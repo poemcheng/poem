@@ -1,0 +1,46 @@
+{
+  "browser": "Chromium on Linux",
+  "transport": "loopback HTTP",
+  "physical_mobile_tested": false,
+  "file_scheme_tested": false,
+  "results": [
+    {
+      "test": "standalone HTML home rendering",
+      "passed": true
+    },
+    {
+      "test": "DrawIQ gap, adoption stays pending, guarded rejection",
+      "passed": true
+    },
+    {
+      "test": "paired animation, 24-scenario batch, full CSV export",
+      "passed": true
+    },
+    {
+      "test": "9/9 coverage gap, clean-install missing seeds, release fix, media corruption",
+      "passed": true
+    },
+    {
+      "test": "activity JSON includes all stations; ratings not auto-submitted",
+      "passed": true
+    },
+    {
+      "test": "downloaded self-contained HTML reload",
+      "passed": true
+    },
+    {
+      "test": "390px viewport: all six views, no horizontal document overflow",
+      "passed": true
+    },
+    {
+      "test": "keyboard focus enters navigation",
+      "passed": true
+    },
+    {
+      "test": "no JavaScript exceptions or external network requests",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "external_requests": []
+}

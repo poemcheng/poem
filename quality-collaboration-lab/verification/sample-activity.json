@@ -1,0 +1,1009 @@
+{
+  "version": "2026.11-teaching.1",
+  "started_at": "2026-11-13T03:06:39.921Z",
+  "evidence_kind": "classroom_activity_not_research_validation",
+  "events": [
+    {
+      "station": "drawiq",
+      "action": "evaluate_reuse",
+      "at": "2026-11-13T03:06:40.574Z",
+      "scenario": "operator",
+      "policy": {
+        "operator": false,
+        "state": false,
+        "source": true
+      },
+      "allowed": true
+    },
+    {
+      "station": "drawiq",
+      "action": "adopt",
+      "at": "2026-11-13T03:06:40.624Z",
+      "value": "5",
+      "unit": "μm",
+      "operator": "≤",
+      "content_state": "present",
+      "review_status": "needs_review",
+      "support_verified": false,
+      "original_content_state": "present",
+      "original_operator": "≤",
+      "version_delta": 1,
+      "approved": false,
+      "evidence_kind": "synthetic_teaching_adoption"
+    },
+    {
+      "station": "drawiq",
+      "action": "evaluate_reuse",
+      "at": "2026-11-13T03:06:40.707Z",
+      "scenario": "operator",
+      "policy": {
+        "source": true,
+        "operator": true,
+        "state": true
+      },
+      "allowed": false
+    },
+    {
+      "station": "medical",
+      "action": "paired_motion",
+      "at": "2026-11-13T03:06:40.988Z",
+      "scenario": "early",
+      "latency": 0.15
+    },
+    {
+      "station": "medical",
+      "action": "paired_batch",
+      "at": "2026-11-13T03:06:41.167Z",
+      "seed": 20261113,
+      "n": 24
+    },
+    {
+      "station": "deployment",
+      "action": "deployment_check",
+      "at": "2026-11-13T03:06:41.492Z",
+      "scope": "legacy",
+      "options": {
+        "environment": "clean",
+        "coverAll": false,
+        "portable": false,
+        "versionAligned": false,
+        "corrupt": false,
+        "strictIntegrity": true
+      },
+      "accepted": false
+    },
+    {
+      "station": "deployment",
+      "action": "deployment_check",
+      "at": "2026-11-13T03:06:41.540Z",
+      "scope": "all",
+      "options": {
+        "environment": "clean",
+        "coverAll": false,
+        "portable": false,
+        "versionAligned": false,
+        "corrupt": false,
+        "strictIntegrity": true
+      },
+      "accepted": false
+    },
+    {
+      "station": "deployment",
+      "action": "inspect_course",
+      "at": "2026-11-13T03:06:41.590Z",
+      "id": 21
+    },
+    {
+      "station": "deployment",
+      "action": "apply_release_fix",
+      "at": "2026-11-13T03:06:41.623Z"
+    },
+    {
+      "station": "deployment",
+      "action": "deployment_check",
+      "at": "2026-11-13T03:06:41.623Z",
+      "scope": "all",
+      "options": {
+        "environment": "clean",
+        "coverAll": true,
+        "portable": true,
+        "versionAligned": true,
+        "corrupt": false,
+        "strictIntegrity": true
+      },
+      "accepted": true
+    },
+    {
+      "station": "deployment",
+      "action": "inject_media_corruption",
+      "at": "2026-11-13T03:06:41.674Z"
+    },
+    {
+      "station": "deployment",
+      "action": "deployment_check",
+      "at": "2026-11-13T03:06:41.674Z",
+      "scope": "all",
+      "options": {
+        "environment": "clean",
+        "coverAll": true,
+        "portable": true,
+        "versionAligned": true,
+        "corrupt": true,
+        "strictIntegrity": true
+      },
+      "accepted": false
+    }
+  ],
+  "answers": {},
+  "ratings": null,
+  "results": {
+    "drawiq": {
+      "scenario": "operator",
+      "evidence_kind": "synthetic_teaching_rule",
+      "checks": [
+        {
+          "id": "value",
+          "label": "原始值相符",
+          "enabled": true,
+          "pass": true
+        },
+        {
+          "id": "unit",
+          "label": "單位相符",
+          "enabled": true,
+          "pass": true
+        },
+        {
+          "id": "source",
+          "label": "來源核准仍有效",
+          "enabled": true,
+          "pass": true
+        },
+        {
+          "id": "operator",
+          "label": "比較運算子相符",
+          "enabled": true,
+          "pass": false
+        },
+        {
+          "id": "state",
+          "label": "目標內容已存在且無衝突",
+          "enabled": true,
+          "pass": true
+        }
+      ],
+      "allowed": false,
+      "referenceOnly": false,
+      "reasons": [
+        "比較運算子相符"
+      ],
+      "uncheckedRisks": [],
+      "target": {
+        "value": "0.5",
+        "unit": "μm",
+        "operator": "≤",
+        "state": "present",
+        "approved": true,
+        "revision": "A-03",
+        "output": "5",
+        "kind": "suggest_value"
+      },
+      "source": {
+        "value": "0.5",
+        "unit": "μm",
+        "operator": "≥",
+        "state": "present",
+        "approved": true,
+        "revision": "A-03",
+        "output": "5",
+        "kind": "suggest_value"
+      },
+      "policy": {
+        "source": true,
+        "operator": true,
+        "state": true
+      }
+    },
+    "medical": {
+      "evidence_kind": "synthetic_teaching_paired_batch",
+      "seed": 20261113,
+      "n": 24,
+      "latency": 0.15,
+      "independent_human_sample": false,
+      "rows": [
+        {
+          "scenario_id": "T01",
+          "kind": "persistent",
+          "spec": {
+            "name": "持續佔區",
+            "on": 2.4254181223805062,
+            "off": 98.9254181223805,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "timeout",
+            "time": 14,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T02",
+          "kind": "late",
+          "spec": {
+            "name": "過晚才出現的障礙",
+            "on": 3.911725388211198,
+            "off": 5.361725388211198,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "unsafe_event",
+            "time": 3.925,
+            "unsafe": true,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.925,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T03",
+          "kind": "normal",
+          "spec": {
+            "name": "正常通行",
+            "on": 99.10504251283128,
+            "off": 100.10504251283128,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T04",
+          "kind": "normal",
+          "spec": {
+            "name": "正常通行",
+            "on": 99.097422833147,
+            "off": 100.097422833147,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T05",
+          "kind": "late",
+          "spec": {
+            "name": "過晚才出現的障礙",
+            "on": 3.6389367802767083,
+            "off": 5.0889367802767085,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "unsafe_event",
+            "time": 3.65,
+            "unsafe": true,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.65,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T06",
+          "kind": "late",
+          "spec": {
+            "name": "過晚才出現的障礙",
+            "on": 3.5933282915502787,
+            "off": 5.043328291550279,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T07",
+          "kind": "persistent",
+          "spec": {
+            "name": "持續佔區",
+            "on": 2.4259217789862304,
+            "off": 98.92592177898624,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "timeout",
+            "time": 14,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T08",
+          "kind": "late",
+          "spec": {
+            "name": "過晚才出現的障礙",
+            "on": 3.6299454503343442,
+            "off": 5.079945450334344,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "unsafe_event",
+            "time": 3.65,
+            "unsafe": true,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.65,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T09",
+          "kind": "persistent",
+          "spec": {
+            "name": "持續佔區",
+            "on": 2.427791119099129,
+            "off": 98.92779111909913,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "timeout",
+            "time": 14,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T10",
+          "kind": "early",
+          "spec": {
+            "name": "及早闖入後離開",
+            "on": 2.4654743397957644,
+            "off": 4.565474339795764,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 9.675,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T11",
+          "kind": "normal",
+          "spec": {
+            "name": "正常通行",
+            "on": 99.05994261676679,
+            "off": 100.05994261676679,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T12",
+          "kind": "persistent",
+          "spec": {
+            "name": "持續佔區",
+            "on": 2.4793114509317093,
+            "off": 98.9793114509317,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "timeout",
+            "time": 14,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T13",
+          "kind": "persistent",
+          "spec": {
+            "name": "持續佔區",
+            "on": 2.445545794989448,
+            "off": 98.94554579498944,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "timeout",
+            "time": 14,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T14",
+          "kind": "normal",
+          "spec": {
+            "name": "正常通行",
+            "on": 98.85373274645535,
+            "off": 99.85373274645535,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T15",
+          "kind": "persistent",
+          "spec": {
+            "name": "持續佔區",
+            "on": 2.4482414174010048,
+            "off": 98.94824141740101,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "timeout",
+            "time": 14,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T16",
+          "kind": "persistent",
+          "spec": {
+            "name": "持續佔區",
+            "on": 2.5577242605155335,
+            "off": 99.05772426051553,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "timeout",
+            "time": 14,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T17",
+          "kind": "normal",
+          "spec": {
+            "name": "正常通行",
+            "on": 99.15836957691936,
+            "off": 100.15836957691936,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T18",
+          "kind": "persistent",
+          "spec": {
+            "name": "持續佔區",
+            "on": 2.4229884988977575,
+            "off": 98.92298849889775,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "timeout",
+            "time": 14,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T19",
+          "kind": "late",
+          "spec": {
+            "name": "過晚才出現的障礙",
+            "on": 3.845076489029452,
+            "off": 5.295076489029452,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "unsafe_event",
+            "time": 3.85,
+            "unsafe": true,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.85,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T20",
+          "kind": "early",
+          "spec": {
+            "name": "及早闖入後離開",
+            "on": 2.3944480258971454,
+            "off": 4.494448025897145,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 9.675,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T21",
+          "kind": "normal",
+          "spec": {
+            "name": "正常通行",
+            "on": 98.87237670602045,
+            "off": 99.87237670602045,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "success",
+            "time": 7.725,
+            "unsafe": false,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T22",
+          "kind": "late",
+          "spec": {
+            "name": "過晚才出現的障礙",
+            "on": 3.5999895759276113,
+            "off": 5.049989575927611,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T23",
+          "kind": "early",
+          "spec": {
+            "name": "及早闖入後離開",
+            "on": 2.37367609445937,
+            "off": 4.473676094459369,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 9.675,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        },
+        {
+          "scenario_id": "T24",
+          "kind": "early",
+          "spec": {
+            "name": "及早闖入後離開",
+            "on": 2.593392344575841,
+            "off": 4.693392344575841,
+            "obstacle": 330
+          },
+          "with_gate": {
+            "status": "success",
+            "time": 9.675,
+            "unsafe": false,
+            "interventions": 1
+          },
+          "without_gate": {
+            "status": "unsafe_event",
+            "time": 3.6,
+            "unsafe": true,
+            "interventions": 0
+          }
+        }
+      ],
+      "counts": {
+        "both_success": 6,
+        "gate_only": 4,
+        "no_gate_only": 0,
+        "both_not_success": 14
+      },
+      "with_gate": {
+        "success": 10,
+        "unsafe": 6,
+        "timeout": 8,
+        "mean_all_attempt_time": 9.138541666666667
+      },
+      "without_gate": {
+        "success": 6,
+        "unsafe": 18,
+        "timeout": 0,
+        "mean_all_attempt_time": 4.659374999999998
+      },
+      "time_definition": "All attempted teaching scenarios; collision terminates early and timeout=14. Raw time is not quality-adjusted productivity."
+    },
+    "deployment": {
+      "evidence_kind": "synthetic_deployment_fixture",
+      "options": {
+        "environment": "clean",
+        "scope": "all",
+        "coverAll": true,
+        "portable": true,
+        "versionAligned": true,
+        "corrupt": true,
+        "strictIntegrity": true
+      },
+      "rows": [
+        {
+          "id": 1,
+          "name": "新版教案 01",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 2,
+          "name": "新版教案 02",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 3,
+          "name": "新版教案 03",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 4,
+          "name": "新版教案 04",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 5,
+          "name": "新版教案 05",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 6,
+          "name": "新版教案 06",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 7,
+          "name": "新版教案 07",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 8,
+          "name": "新版教案 08",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 9,
+          "name": "新版教案 09",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 10,
+          "name": "舊版教案 10",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 11,
+          "name": "舊版教案 11",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 12,
+          "name": "舊版教案 12",
+          "status": "corrupt_media",
+          "reason": "已攔截損毀媒體；校驗不能自行修好檔案",
+          "claimedPlayable": false,
+          "actualPlayable": false
+        },
+        {
+          "id": 13,
+          "name": "舊版教案 13",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 14,
+          "name": "舊版教案 14",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 15,
+          "name": "舊版教案 15",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 16,
+          "name": "舊版教案 16",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 17,
+          "name": "舊版教案 17",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 18,
+          "name": "舊版教案 18",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 19,
+          "name": "舊版教案 19",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 20,
+          "name": "SBAR 跨團隊溝通（示意）",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 21,
+          "name": "舊版教案 21",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 22,
+          "name": "舊版教案 22",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 23,
+          "name": "舊版教案 23",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 24,
+          "name": "舊版教案 24",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 25,
+          "name": "舊版教案 25",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 26,
+          "name": "舊版教案 26",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 27,
+          "name": "舊版教案 27",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        },
+        {
+          "id": 28,
+          "name": "舊版教案 28",
+          "status": "ready",
+          "reason": "來源配對與檔案檢查通過",
+          "claimedPlayable": true,
+          "actualPlayable": true
+        }
+      ],
+      "checked": 28,
+      "claimed": 27,
+      "actual": 27,
+      "totalReachable": 28,
+      "scopeComplete": true,
+      "releaseAccepted": false
+    }
+  },
+  "exported_at": "2026-11-13T03:06:41.907Z"
+}

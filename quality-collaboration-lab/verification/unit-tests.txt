@@ -1,0 +1,244 @@
+TAP version 13
+# Subtest: valid correction is eligible
+ok 1 - valid correction is eligible
+  ---
+  duration_ms: 1.526885
+  type: 'test'
+  ...
+# Subtest: legacy gap: operator emits suggestion
+ok 2 - legacy gap: operator emits suggestion
+  ---
+  duration_ms: 0.226483
+  type: 'test'
+  ...
+# Subtest: guarded: operator is blocked
+ok 3 - guarded: operator is blocked
+  ---
+  duration_ms: 0.155844
+  type: 'test'
+  ...
+# Subtest: legacy gap: conflict emits suggestion
+ok 4 - legacy gap: conflict emits suggestion
+  ---
+  duration_ms: 0.204636
+  type: 'test'
+  ...
+# Subtest: guarded: conflict is blocked
+ok 5 - guarded: conflict is blocked
+  ---
+  duration_ms: 0.129549
+  type: 'test'
+  ...
+# Subtest: legacy gap: pending emits suggestion
+ok 6 - legacy gap: pending emits suggestion
+  ---
+  duration_ms: 0.105539
+  type: 'test'
+  ...
+# Subtest: guarded: pending is blocked
+ok 7 - guarded: pending is blocked
+  ---
+  duration_ms: 0.180025
+  type: 'test'
+  ...
+# Subtest: withdrawn source blocked by both presets
+ok 8 - withdrawn source blocked by both presets
+  ---
+  duration_ms: 0.225182
+  type: 'test'
+  ...
+# Subtest: unit mismatch cannot be copied
+ok 9 - unit mismatch cannot be copied
+  ---
+  duration_ms: 0.386395
+  type: 'test'
+  ...
+# Subtest: geometry remains reference-only
+ok 10 - geometry remains reference-only
+  ---
+  duration_ms: 0.396111
+  type: 'test'
+  ...
+# Subtest: adoption never approves target
+ok 11 - adoption never approves target
+  ---
+  duration_ms: 0.270889
+  type: 'test'
+  ...
+# Subtest: legacy conflict adoption retains original state in log
+ok 12 - legacy conflict adoption retains original state in log
+  ---
+  duration_ms: 0.130952
+  type: 'test'
+  ...
+# Subtest: operator preserved during legacy adoption
+ok 13 - operator preserved during legacy adoption
+  ---
+  duration_ms: 0.109045
+  type: 'test'
+  ...
+# Subtest: blocked adoption throws
+ok 14 - blocked adoption throws
+  ---
+  duration_ms: 0.245756
+  type: 'test'
+  ...
+# Subtest: invalid correction input throws
+ok 15 - invalid correction input throws
+  ---
+  duration_ms: 0.917534
+  type: 'test'
+  ...
+# Subtest: normal motion succeeds with and without gate
+ok 16 - normal motion succeeds with and without gate
+  ---
+  duration_ms: 1.003439
+  type: 'test'
+  ...
+# Subtest: early intrusion gate stops and resumes
+ok 17 - early intrusion gate stops and resumes
+  ---
+  duration_ms: 0.606146
+  type: 'test'
+  ...
+# Subtest: early intrusion without gate collides
+ok 18 - early intrusion without gate collides
+  ---
+  duration_ms: 0.276879
+  type: 'test'
+  ...
+# Subtest: late intrusion demonstrates nonzero residual risk
+ok 19 - late intrusion demonstrates nonzero residual risk
+  ---
+  duration_ms: 0.242841
+  type: 'test'
+  ...
+# Subtest: persistent intrusion safely times out in toy model
+ok 20 - persistent intrusion safely times out in toy model
+  ---
+  duration_ms: 1.268278
+  type: 'test'
+  ...
+# Subtest: large latency can cause gated failure
+ok 21 - large latency can cause gated failure
+  ---
+  duration_ms: 0.251816
+  type: 'test'
+  ...
+# Subtest: motion validates latency
+ok 22 - motion validates latency
+  ---
+  duration_ms: 0.13563
+  type: 'test'
+  ...
+# Subtest: batch uses deterministic common scenarios
+ok 23 - batch uses deterministic common scenarios
+  ---
+  duration_ms: 25.188555
+  type: 'test'
+  ...
+# Subtest: different batch seeds produce different fixtures
+ok 24 - different batch seeds produce different fixtures
+  ---
+  duration_ms: 18.464969
+  type: 'test'
+  ...
+# Subtest: paired contingency totals exactly n
+ok 25 - paired contingency totals exactly n
+  ---
+  duration_ms: 8.40316
+  type: 'test'
+  ...
+# Subtest: statuses partition all attempted trials
+ok 26 - statuses partition all attempted trials
+  ---
+  duration_ms: 8.753411
+  type: 'test'
+  ...
+# Subtest: both arms carry the same scenario count
+ok 27 - both arms carry the same scenario count
+  ---
+  duration_ms: 8.163825
+  type: 'test'
+  ...
+# Subtest: batch values are explicitly synthetic
+ok 28 - batch values are explicitly synthetic
+  ---
+  duration_ms: 8.038342
+  type: 'test'
+  ...
+# Subtest: batch invalid seed and sample count rejected
+ok 29 - batch invalid seed and sample count rejected
+  ---
+  duration_ms: 0.323608
+  type: 'test'
+  ...
+# Subtest: historical summary remains separate and unchanged
+ok 30 - historical summary remains separate and unchanged
+  ---
+  duration_ms: 9.244925
+  type: 'test'
+  ...
+# Subtest: old scope passes 9/9 but is not full acceptance
+ok 31 - old scope passes 9/9 but is not full acceptance
+  ---
+  duration_ms: 0.430028
+  type: 'test'
+  ...
+# Subtest: all reachable courses includes 28
+ok 32 - all reachable courses includes 28
+  ---
+  duration_ms: 0.164218
+  type: 'test'
+  ...
+# Subtest: clean environment exposes seven missing structures
+ok 33 - clean environment exposes seven missing structures
+  ---
+  duration_ms: 0.155894
+  type: 'test'
+  ...
+# Subtest: developer machine hides missing structures
+ok 34 - developer machine hides missing structures
+  ---
+  duration_ms: 0.112521
+  type: 'test'
+  ...
+# Subtest: correct release passes clean installation
+ok 35 - correct release passes clean installation
+  ---
+  duration_ms: 0.201992
+  type: 'test'
+  ...
+# Subtest: source mismatch remains until normalized
+ok 36 - source mismatch remains until normalized
+  ---
+  duration_ms: 0.139496
+  type: 'test'
+  ...
+# Subtest: integrity check blocks but does not repair corruption
+ok 37 - integrity check blocks but does not repair corruption
+  ---
+  duration_ms: 0.18298
+  type: 'test'
+  ...
+# Subtest: existence-only check may falsely report availability
+ok 38 - existence-only check may falsely report availability
+  ---
+  duration_ms: 0.114494
+  type: 'test'
+  ...
+# Subtest: invalid deployment environment is rejected
+ok 39 - invalid deployment environment is rejected
+  ---
+  duration_ms: 0.116257
+  type: 'test'
+  ...
+1..39
+# tests 39
+# suites 0
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 211.92392

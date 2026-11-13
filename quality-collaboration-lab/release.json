@@ -1,0 +1,20 @@
+{
+  "version": "2026.11-teaching.1",
+  "source_commit": "bdc325062bfe93663ef4aa219ec4f2982380ac8f",
+  "files": {
+    "index.html": "c9cfa7d80dc991719b48565aee35205f9c9615cdef0f7fe26b3f7c14d8401d35",
+    "core.js": "e8227cd4d79e1729920ba84b2eae49e9a1e5e2dad8b6f6160ca0125b9575d52f",
+    "app.js": "adbc54b5b5a0e4240425ee61e71c975565b7ef1408dc08aa189a29276766258e",
+    "style.css": "0a3521e9e097dc8fea5fb7ef3eb75336888943cb7a164db69b57739819440595",
+    "build.py": "d0b5066c110a8851deefef2453148951792570635592af791dc43e4e240b3584",
+    "README.md": "0c06f0c26bf118d30cc4cfcd728cde971a3094f0fd72f7de775c3ffff44184e4",
+    "LICENSE": "e4f6c753c175fc33801345251fa67133a5ac528617f8f1bc9c3706962f7ed140",
+    "tests/core.test.cjs": "d8cc77c6dcc783da7a4be13f5796fe265bb4523373acdb3fa9aebb0de4a6c7ce",
+    "tests/browser_test.py": "07aff5e02c292c2ea161acc797a6cb2e30eeb6056288e25376cb03db1e4401ef",
+    "docs/GUIDE.md": "25559347bcecf248e4ac09300cc406572d5a8edba8c8dcb30f8545ce36ba6d35",
+    "tests/live_test.py": "89858ae6333b8ad21f046c8bd8369d5ddd0f35e20b283b34321e17175498b0a8",
+    "docs/VALIDATION.md": "12618e0061e1c45211c2d8ea8d945a54302428ee80d0b94ebb29deceb47a7e81"
+  },
+  "research_reproduction": false,
+  "physical_robot_tested": false
+}
